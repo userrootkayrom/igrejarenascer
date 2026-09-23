@@ -1,4 +1,4 @@
 window.SUPABASE_CONFIG = {
   url:"https://gwpppmrarnqywwyjdnca.supabase.co",
-  anonKey:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3cHBwbXJhcm5xeXd3eWpkbmNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNjg4MzUsImV4cCI6MjEwNTc0NDgzNX0.cbwpOQZ_ZPs_sChItBh8lM0cpdp8L04Stonh6Ez5tG8"
+  anonKey:"sb_publishable_ax5GEBwPRHxjQ0V92mt69g_PA3w1s2u"
 };

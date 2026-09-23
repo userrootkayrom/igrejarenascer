@@ -28,7 +28,7 @@
     </style>
     <script src="/supabase-config.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body data-auth-guard="protected" class="bg-gray-100 min-h-screen">
     <script>if (new URLSearchParams(location.search).has("embed")) document.body.classList.add("embedded");</script>
     <script>
         const applyEmbeddedTheme = (theme) => document.body.classList.toggle("dark", theme === "dark");
@@ -235,6 +235,7 @@
         });
     </script>
 
+    <script type="module" src="/auth-guard.js"></script>
     <script type="module">
         import * as SupabaseCompat from "/supabase-compat.js";
         const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;

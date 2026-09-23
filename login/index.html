@@ -189,7 +189,7 @@
     </style>
     <script src="/supabase-config.js"></script>
 </head>
-<body>
+<body data-auth-guard="login">
     <main class="login-page">
         <section class="brand-panel" aria-label="Igreja Renascer">
             <div class="brand-content" aria-hidden="true"></div>
@@ -207,6 +207,7 @@
             </div>
         </section>
     </main>
+    <script type="module" src="/auth-guard.js"></script>
     <script type="module">
         import * as SupabaseCompat from "/supabase-compat.js";
         const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;

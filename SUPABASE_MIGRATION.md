@@ -32,7 +32,7 @@ Depois de conferir a simulação, altere `MIGRATION_DRY_RUN=false` e execute nov
 
 Se uma conta do Firebase tiver um endereço rejeitado pelo Supabase, ela será registrada em `users.invalid` no relatório e as demais contas continuarão sendo processadas. Corrija o endereço no Firebase e execute a migração novamente; as operações são feitas com `upsert` e convites já existentes não são duplicados.
 
-## Fase 2: operação da igreja
+## Gestão integrada: operação da igreja
 
 O mesmo schema já inclui a base dos novos módulos:
 
@@ -54,7 +54,7 @@ O schema também prepara:
 - `integration_connections`: configuração controlada para WhatsApp, e-mail e calendários;
 - `admin_overview_report`: visão consolidada de membros, eventos, acompanhamento, presença e financeiro.
 
-As permissões da Fase 3 são `financeiro`, `patrimonio`, `notificacoes` e `integracoes`, ou a permissão global `fase3`. Segredos de provedores nunca devem ser salvos no navegador; as integrações devem ser executadas por funções server-side.
+As permissões de gestão são específicas: `ministerios`, `celulas`, `escalas`, `presenca`, `pastoral`, `financeiro`, `patrimonio`, `manutencao`, `notificacoes` e `integracoes`. A área pastoral deve ser atribuída somente a pastores. Líderes com `ministerios` gerenciam apenas ministérios cujo `leader_user_id` corresponde ao próprio usuário; `ministerios_coordenacao` permite coordenação geral. Segredos de provedores nunca devem ser salvos no navegador; as integrações devem ser executadas por funções server-side.
 
 O painel também possui um `manifest.webmanifest` e um service worker para instalação como aplicativo (PWA). O cache contém apenas o shell visual; os dados continuam protegidos e devem ser carregados pela API autenticada.
 

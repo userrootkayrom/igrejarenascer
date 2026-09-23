@@ -84,6 +84,11 @@
                     <iframe src="admin-eventos.html?embed=1" title="Módulo completo de eventos" class="h-full w-full border-0"></iframe>
                 </section>
 
+                <section data-view="gestao" class="hidden space-y-6">
+                    <div><h2 class="text-3xl font-black">Gestão da igreja</h2><p class="mt-2 text-slate-500">Módulos liberados conforme sua função e responsabilidade.</p></div>
+                    <div id="admin-modules" class="grid gap-5 lg:grid-cols-2"></div>
+                </section>
+
                 <section data-view="usuarios" class="hidden space-y-6">
                     <div><h2 class="text-3xl font-black">Usuários e permissões</h2><p class="mt-2 text-slate-500">Somente o superadmin pode alterar o acesso de outros usuários.</p></div>
                     <div id="users-notice" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">Esta área é exclusiva do superadmin.</div>
@@ -115,13 +120,13 @@
         const app = initializeApp({}), auth = getAuth(app), db = getFirestore(app), storage = getStorage(app), adminCreationApp = initializeApp({}, "admin-user-creation"), adminCreationAuth = getAuth(adminCreationApp);
         if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service-worker.js").catch(() => {});
         const SUPERADMIN_EMAIL = "admin@renascer.com";
-        const PERMISSIONS = { dashboard: "Dashboard", respostas: "Respostas do site", membros: "Membresia", eventos: "Eventos", perfil: "Meu perfil", usuarios: "Usuários e permissões" };
+        const PERMISSIONS = { dashboard: "Dashboard", respostas: "Respostas do site", membros: "Membresia", eventos: "Eventos", perfil: "Meu perfil", usuarios: "Usuários e permissões", gestao: "Gestão da igreja", ministerios: "Ministérios", celulas: "Células", escalas: "Escalas", presenca: "Presença", pastoral: "Pastoral", financeiro: "Financeiro", patrimonio: "Patrimônio", manutencao: "Manutenção", notificacoes: "Notificações", integracoes: "Integrações" };
         const RESPONSE_COLLECTIONS = { conexoes_novos_membros: "Novos contatos", inscricoes_batismo: "Batismo", inscricoes_voluntarios: "Voluntários", pedidos_oracao: "Pedidos de oração", interesse_grupos: "Interesse em grupos" };
         let currentUser, currentProfile, activeResponse = "conexoes_novos_membros", members = [], events = [];
         const $ = (id) => document.getElementById(id);
         const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
         const notify = (title, text, icon = "success") => Swal.fire({ title, text, icon, confirmButtonColor: "#16a34a" });
-        const can = (permission) => currentProfile?.role === "superadmin" || currentProfile?.permissions?.[permission] === true;
+        const can = (permission) => currentProfile?.role === "superadmin" || currentProfile?.permissions?.[permission] === true || (permission === "gestao" && ["ministerios", "celulas", "escalas", "presenca", "pastoral", "financeiro", "patrimonio", "manutencao", "notificacoes", "integracoes"].some((item) => currentProfile?.permissions?.[item] === true));
         const savedTheme = localStorage.getItem("renascer-theme");
         const themeToggle = $("theme-toggle");
         function applyTheme(theme) {
@@ -156,13 +161,10 @@
         }
         function renderNav() {
             const icons = { dashboard: "⌂", respostas: "✉", membros: "♙", eventos: "◷", usuarios: "⚙", perfil: "●" };
-            const standardLinks = Object.entries(PERMISSIONS).filter(([key]) => can(key)).map(([key, label]) => `<a href="#${key}" data-section="${key}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">${icons[key]}</span>${label}</a>`).join("");
-            const phaseLinks = [
-                ["fase1", "Fase 1 · Gestão", "▣", ["membros", "eventos", "respostas"]],
-                ["fase2", "Fase 2 · Operação", "◈", ["fase2", "ministerios", "celulas", "escalas", "presenca", "pastoral"]],
-                ["fase3", "Fase 3 · Gestão avançada", "◆", ["fase3", "financeiro", "patrimonio", "notificacoes", "integracoes"]]
-            ].filter(([, , , permissions]) => currentProfile?.role === "superadmin" || permissions.some((permission) => can(permission))).map(([key, label, icon]) => `<a href="/login/admin-${key}.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">${icon}</span>${label}</a>`).join("");
-            $("sidebar-nav").innerHTML = standardLinks + phaseLinks;
+            const standardLinks = Object.entries(PERMISSIONS).filter(([key]) => key !== "gestao" && can(key)).map(([key, label]) => `<a href="#${key}" data-section="${key}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">${icons[key]}</span>${label}</a>`).join("");
+            const modulePermissions = ["ministerios", "celulas", "escalas", "presenca", "pastoral", "financeiro", "patrimonio", "manutencao", "notificacoes", "integracoes"];
+            const managementLink = modulePermissions.some((permission) => can(permission)) ? `<a href="#gestao" data-section="gestao" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">▣</span>Gestão da igreja</a>` : "";
+            $("sidebar-nav").innerHTML = standardLinks + managementLink;
             document.querySelectorAll("[data-section]").forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); showSection(link.dataset.section); }));
             $("access-summary").textContent = `${Object.keys(PERMISSIONS).filter(can).length} áreas liberadas`;
         }
@@ -226,6 +228,8 @@
                 $("user-name").textContent = currentProfile.nome || user.email; $("user-role").textContent = currentProfile.role === "superadmin" ? "SUPERADMIN" : (currentProfile.nomenclatura || "ADMINISTRADOR").toUpperCase();
                 setAvatar($("avatar"), profileUser); setAvatar($("profile-avatar"), profileUser); $("profile-name").textContent = currentProfile.nome || user.email; $("profile-email").textContent = user.email; $("profile-name-input").value = currentProfile.nome || user.displayName || ""; $("welcome-name").textContent = (currentProfile.nome || user.email).split(" ")[0]; $("today").textContent = new Intl.DateTimeFormat("pt-BR", { dateStyle: "full" }).format(new Date());
                 renderNav(); renderQuickActions(); setupResponseTabs(); $("users-notice").classList.toggle("hidden", currentProfile.role !== "superadmin"); $("user-form").classList.toggle("hidden", currentProfile.role !== "superadmin");
+                const { initAdminModules } = await import("/login/admin-modulos.js");
+                initAdminModules({ profile: currentProfile, user: currentUser, notify });
                 if (currentProfile.role === "superadmin") onSnapshot(collection(db, "usuarios_admin"), (snapshot) => renderUsers(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))));
                 onSnapshot(collection(db, "membros_oficiais"), (snapshot) => { members = snapshot.docs.map((item) => ({ id: item.id, ...item.data() })); renderMembers(); renderMemberChart(members); renderStats({ membros: members.filter((item) => item.status !== "Inativo").length, respostas: 0, eventos: events.length, pedidos: 0 }); }); onSnapshot(collection(db, "agenda_eventos"), (snapshot) => { events = snapshot.docs.map((item) => ({ id: item.id, ...item.data() })); renderEvents(); }); Object.keys(RESPONSE_COLLECTIONS).forEach((name) => onSnapshot(collection(db, name), (snapshot) => { if (name === "conexoes_novos_membros") renderStats({ membros: members.length, respostas: snapshot.size, eventos: events.length, pedidos: 0 }); }));
                 $("loading").remove(); $("app").classList.remove("hidden"); showSection(location.hash.slice(1) || "dashboard");
@@ -250,7 +254,7 @@
         $("profile-photo-input").addEventListener("change", async (event) => { const file = event.target.files[0]; if (!file) return; if (file.size > 2 * 1024 * 1024) { event.target.value = ""; notify("Arquivo muito grande", "Escolha uma imagem de até 2 MB.", "warning"); return; } try { const fileRef = storageRef(storage, `usuarios_admin/${currentUser.uid}/perfil-${Date.now()}-${file.name}`); await uploadBytes(fileRef, file, { contentType: file.type }); const photoURL = await getDownloadURL(fileRef); await updateProfile(currentUser, { photoURL }); await setDoc(doc(db, "usuarios_admin", currentUser.uid), { photoURL, updatedAt: serverTimestamp() }, { merge: true }); setAvatar($("avatar"), currentUser); setAvatar($("profile-avatar"), currentUser); notify("Foto atualizada", "Sua foto de perfil foi salva."); } catch (error) { console.error("Erro ao atualizar foto:", error); notify("Não foi possível salvar", "Verifique as permissões do Firebase Storage e tente novamente.", "error"); } finally { event.target.value = ""; } });
         $("password-form").addEventListener("submit", async (event) => { event.preventDefault(); try { await updatePassword(currentUser, $("password-input").value); event.target.reset(); notify("Senha atualizada", "Sua senha foi alterada com sucesso."); } catch (error) { notify("Não foi possível atualizar", "Por segurança, faça login novamente antes de alterar a senha.", "error"); } });
         $("btn-logout").addEventListener("click", () => signOut(auth));
-        $("permission-checks").innerHTML = Object.entries(PERMISSIONS).filter(([key]) => key !== "usuarios").map(([key, label]) => `<label class="flex items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm"><input data-permission="${key}" type="checkbox" class="h-4 w-4 accent-green-600"><span>${label}</span></label>`).join("");
+        $("permission-checks").innerHTML = Object.entries(PERMISSIONS).filter(([key]) => !["usuarios", "gestao", "dashboard", "perfil"].includes(key)).map(([key, label]) => `<label class="flex items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm"><input data-permission="${key}" type="checkbox" class="h-4 w-4 accent-green-600"><span>${label}</span></label>`).join("");
         init();
     </script>
 </body>

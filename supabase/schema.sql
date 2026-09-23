@@ -59,6 +59,7 @@ create table if not exists public.ministries (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table public.ministries add column if not exists leader_user_id uuid references auth.users(id) on delete set null;
 
 create table if not exists public.ministry_members (
   ministry_id uuid not null references public.ministries(id) on delete cascade,
@@ -271,7 +272,7 @@ declare
   item record;
 begin
   for item in select * from (values
-    ('ministries', 'ministerios'), ('ministry_members', 'ministerios'),
+    ('ministry_members', 'ministerios'),
     ('cells', 'celulas'), ('cell_members', 'celulas'),
     ('schedules', 'escalas'), ('schedule_assignments', 'escalas'),
     ('attendance_sessions', 'presenca'), ('attendance_records', 'presenca'),
@@ -288,6 +289,18 @@ begin
     );
   end loop;
 end $$;
+
+drop policy if exists "phase two access" on public.ministries;
+drop policy if exists "ministry leader access" on public.ministries;
+create policy "ministry leader access" on public.ministries for all to authenticated
+  using (
+    public.has_permission('ministerios_coordenacao')
+    or (public.has_permission('ministerios') and leader_user_id = auth.uid())
+  )
+  with check (
+    public.has_permission('ministerios_coordenacao')
+    or (public.has_permission('ministerios') and leader_user_id = auth.uid())
+  );
 
 do $$
 declare

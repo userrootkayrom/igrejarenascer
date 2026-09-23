@@ -149,10 +149,18 @@ export async function updatePassword(_user, password) {
 }
 
 export async function createUserWithEmailAndPassword(_auth, email, password) {
-  const { data: currentSession } = await supabase.auth.getSession();
+  const { data: currentSession, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!currentSession.session) throw new Error("A sessão do administrador expirou. Entre novamente antes de criar usuários.");
   const result = await supabase.auth.signUp({ email, password });
-  if (currentSession.session) await supabase.auth.setSession(currentSession.session);
   if (result.error) throw result.error;
+  const restored = await supabase.auth.setSession(currentSession.session);
+  if (restored.error) throw restored.error;
+  const { data: verifiedSession, error: verifyError } = await supabase.auth.getSession();
+  if (verifyError) throw verifyError;
+  if (verifiedSession.session?.user.id !== currentSession.session.user.id) {
+    throw new Error("Não foi possível restaurar a sessão do administrador após criar o usuário.");
+  }
   return { user: result.data.user };
 }
 

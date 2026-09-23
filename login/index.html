@@ -224,10 +224,19 @@
             button.firstChild.textContent = "VERIFICANDO... ";
             try {
                 await signInWithEmailAndPassword(auth, document.getElementById("email").value.trim(), document.getElementById("senha").value);
-                window.location.href = "/login/admin-dashboard.html";
+                const { data: sessionData } = await auth.getSession();
+                if (!sessionData.session) throw new Error("A sessão não foi criada pelo Supabase.");
+                window.location.replace("/login/admin-dashboard.html");
             } catch (loginError) {
                 console.error("Erro no login:", loginError);
-                error.textContent = "Não foi possível entrar. Confira seu e-mail e senha ou fale com o superadmin.";
+                const errorCode = loginError?.message?.toLowerCase() || "";
+                error.textContent = errorCode.includes("configure supabase")
+                    ? "A configuração pública do Supabase ainda não foi preenchida."
+                    : errorCode.includes("invalid login credentials")
+                        ? "E-mail ou senha inválidos no Supabase. O usuário precisa existir em Authentication > Users."
+                        : errorCode.includes("email not confirmed")
+                            ? "Confirme o e-mail do usuário no Supabase antes de entrar."
+                            : "Não foi possível entrar. Confira o e-mail e a senha cadastrados no Supabase.";
                 error.classList.remove("hidden");
                 button.disabled = false;
                 button.firstChild.textContent = "ENTRAR ";

@@ -245,7 +245,7 @@ alter table public.integration_connections enable row level security;
 
 drop policy if exists "admins read own profile" on public.admin_profiles;
 create policy "admins read own profile" on public.admin_profiles for select to authenticated
-  using (id = auth.uid() or public.has_permission('users'));
+  using (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email') or public.has_permission('users'));
 drop policy if exists "admins update own profile" on public.admin_profiles;
 create policy "admins update own profile" on public.admin_profiles for update to authenticated
   using (id = auth.uid() or public.has_permission('users'));

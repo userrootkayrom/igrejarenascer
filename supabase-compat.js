@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const config = window.SUPABASE_CONFIG;
-if (!config?.url || !config?.anonKey || config.url.includes("seu-projeto")) {
+if (!config?.url || !config?.anonKey || config.url.includes("seu-projeto") || config.anonKey === "******" || config.anonKey.includes("sua_chave")) {
   throw new Error("Configure supabase-config.js com a URL e a chave pública do Supabase.");
 }
 
@@ -40,7 +40,8 @@ function makeQuery(source) {
   let request = supabase.from(tableFor(source.name)).select("*");
   for (const constraint of constraints) {
     if (constraint.type === "where" && constraint.operator === "==") {
-      request = request.eq(`data->>${constraint.field}`, constraint.value);
+      const column = source.name === "usuarios_admin" ? constraint.field === "nome" ? "name" : constraint.field : `data->>${constraint.field}`;
+      request = request.eq(column, constraint.value);
     }
     if (constraint.type === "orderBy") {
       const column = source.name === "agenda_eventos" && constraint.field === "data_evento" ? "event_date" : "created_at";

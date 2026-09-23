@@ -172,7 +172,7 @@ function renderModules() {
 async function init() {
   const { data: sessionData } = await supabase.auth.getSession();
   user = sessionData.session?.user;
-  if (!user) return window.location.href = "/login/index.html";
+  if (!user) return;
   const { data: profileById, error: idError } = await supabase.from("admin_profiles").select("*").eq("id", user.id).maybeSingle();
   const { data: profileByEmail, error: emailError } = profileById || !user.email
     ? { data: null, error: null }

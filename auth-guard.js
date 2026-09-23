@@ -10,7 +10,8 @@ if (!config?.url || !config?.anonKey || config.url.includes("seu-projeto") || co
   console.error("Configuração pública do Supabase ausente ou inválida.");
   document.documentElement.style.visibility = "visible";
 } else {
-  const supabase = createClient(config.url, config.anonKey);
+  const supabase = window.__supabaseClient || createClient(config.url, config.anonKey);
+  window.__supabaseClient = supabase;
   document.documentElement.classList.add("auth-checking");
   let redirected = false;
   const redirect = (url) => {

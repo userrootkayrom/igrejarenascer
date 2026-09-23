@@ -5,7 +5,8 @@ if (!config?.url || !config?.anonKey || config.url.includes("seu-projeto") || co
   throw new Error("Configure supabase-config.js com a URL e a chave pública do Supabase.");
 }
 
-export const supabase = createClient(config.url, config.anonKey);
+export const supabase = window.__supabaseClient || createClient(config.url, config.anonKey);
+window.__supabaseClient = supabase;
 const collectionMap = {
   membros_oficiais: "members",
   agenda_eventos: "events",

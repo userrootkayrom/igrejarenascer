@@ -22,6 +22,7 @@
             document.documentElement.classList.remove('dark')
         }
     </script>
+    <script src="/supabase-config.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased transition-colors duration-300">
 
@@ -342,20 +343,10 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import * as SupabaseCompat from "/supabase-compat.js";
+        const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;
 
-        const firebaseConfig = {
-         apiKey: "AIzaSyDvxbMX3ePr0xxZVgUWYvntfYmWZXgENp8",
-         authDomain: "dados-renascer.firebaseapp.com",
-         projectId: "dados-renascer",
-         storageBucket: "dados-renascer.firebasestorage.app",
-         messagingSenderId: "596829231608",
-         appId: "1:596829231608:web:7d98d0f5604ae081669e0d",
-         measurementId: "G-C07KREHMT4"
-        };
-
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp({});
         const analytics = getAnalytics(app);
     </script>
 </body>

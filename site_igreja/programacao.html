@@ -21,6 +21,7 @@
             document.documentElement.classList.remove('dark')
         }
     </script>
+    <script src="/supabase-config.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased flex flex-col min-h-screen transition-colors duration-300">
 
@@ -257,19 +258,10 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getFirestore, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import * as SupabaseCompat from "/supabase-compat.js";
+        const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
-            authDomain: "site-renascer-eef39.firebaseapp.com",
-            projectId: "site-renascer-eef39",
-            storageBucket: "site-renascer-eef39.firebasestorage.app",
-            messagingSenderId: "1043023040737",
-            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
-        };
-
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp({});
         const db = getFirestore(app);
         const container = document.getElementById('container-eventos-dinamicos');
 

@@ -6,6 +6,7 @@ create table if not exists public.admin_profiles (
   name text,
   role text not null default 'admin' check (role in ('superadmin', 'admin')),
   permissions jsonb not null default '{}'::jsonb,
+  nomenclatura text,
   photo_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -247,7 +248,10 @@ create policy "admins read own profile" on public.admin_profiles for select to a
   using (id = auth.uid() or public.has_permission('users'));
 drop policy if exists "admins update own profile" on public.admin_profiles;
 create policy "admins update own profile" on public.admin_profiles for update to authenticated
-  using (id = auth.uid());
+  using (id = auth.uid() or public.has_permission('users'));
+drop policy if exists "admins create profiles" on public.admin_profiles;
+create policy "admins create profiles" on public.admin_profiles for insert to authenticated
+  with check (public.has_permission('users'));
 
 drop policy if exists "permitted members access" on public.members;
 create policy "permitted members access" on public.members for all to authenticated
@@ -322,6 +326,14 @@ select
 create index if not exists members_status_idx on public.members(status);
 create index if not exists events_date_idx on public.events(event_date);
 create index if not exists inbox_collection_idx on public.inbox_submissions(collection_name);
+
+alter table public.admin_profiles add column if not exists nomenclatura text;
+drop policy if exists "public submissions" on public.inbox_submissions;
+create policy "public submissions" on public.inbox_submissions for insert to anon, authenticated
+  with check (collection_name in ('conexoes_novos_membros', 'inscricoes_batismo', 'inscricoes_voluntarios', 'pedidos_oracao', 'interesse_grupos'));
+drop policy if exists "public events read" on public.events;
+create policy "public events read" on public.events for select to anon, authenticated
+  using (coalesce(data->>'publicado', 'true') <> 'false');
 create index if not exists audit_actor_created_idx on public.audit_logs(actor_id, created_at desc);
 create index if not exists ministries_active_idx on public.ministries(active);
 create index if not exists cells_active_idx on public.cells(active);

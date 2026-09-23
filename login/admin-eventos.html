@@ -26,6 +26,7 @@
         .hide-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .hide-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
+    <script src="/supabase-config.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <script>if (new URLSearchParams(location.search).has("embed")) document.body.classList.add("embedded");</script>
@@ -235,20 +236,12 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import * as SupabaseCompat from "/supabase-compat.js";
+        const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;
 
         // Banco de Dados Oficial
-        const firebaseConfig = {
-            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
-            authDomain: "site-renascer-eef39.firebaseapp.com",
-            projectId: "site-renascer-eef39",
-            storageBucket: "site-renascer-eef39.firebasestorage.app",
-            messagingSenderId: "1043023040737",
-            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
-        };
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp({});
         const db = getFirestore(app);
 
         // Variáveis de controle globais

@@ -99,7 +99,7 @@ async function migrateAdminProfiles() {
     const profile = plainValue(document.data());
     const id = byEmail.get(profile.email?.toLowerCase());
     if (!id) return [];
-    return [{ id, email: profile.email || "", name: profile.nome || null, role: profile.role || "admin", permissions: profile.permissions || {}, photo_url: profile.photoURL || null }];
+    return [{ id, email: profile.email || "", name: profile.nome || null, nomenclatura: profile.nomenclatura || null, role: profile.role || "admin", permissions: profile.permissions || {}, photo_url: profile.photoURL || null }];
   });
   if (rows.length) {
     const { error } = await supabase.from("admin_profiles").upsert(rows, { onConflict: "id" });

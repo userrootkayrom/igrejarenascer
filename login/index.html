@@ -187,6 +187,7 @@
             .login-card { width: min(100% - 40px, 430px); }
         }
     </style>
+    <script src="/supabase-config.js"></script>
 </head>
 <body>
     <main class="login-page">
@@ -207,17 +208,10 @@
         </section>
     </main>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import * as SupabaseCompat from "/supabase-compat.js";
+        const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;
 
-        const app = initializeApp({
-            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
-            authDomain: "site-renascer-eef39.firebaseapp.com",
-            projectId: "site-renascer-eef39",
-            storageBucket: "site-renascer-eef39.firebasestorage.app",
-            messagingSenderId: "1043023040737",
-            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
-        });
+        const app = initializeApp({});
         const auth = getAuth(app);
         const form = document.getElementById("form-login");
         const error = document.getElementById("mensagem-erro");

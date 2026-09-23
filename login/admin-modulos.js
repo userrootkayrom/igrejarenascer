@@ -73,7 +73,9 @@ export function initAdminModules({ profile, user, notify }) {
     container.querySelector("[data-cancel]").addEventListener("click", () => { form.reset(); state.delete(module.key); form.querySelector("[data-submit]").textContent = "Adicionar"; form.querySelector("[data-cancel]").hidden = true; });
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const values = Object.fromEntries(module.fields.map(([name, , type]) => [name, type === "checkbox" ? form.elements[name].checked : (form.elements[name].value || null)]));
+      const values = Object.fromEntries(module.fields
+        .map(([name, , type]) => [name, type === "checkbox" ? form.elements[name].checked : form.elements[name].value.trim()])
+        .filter(([, value]) => value !== ""));
       if (module.table === "ministries" && !hasPermission(profile, "ministerios")) return;
       if (module.table === "ministries" && profile?.role !== "superadmin" && !profile?.permissions?.ministerios_coordenacao) values.leader_user_id = user.id;
       if (module.table === "notifications") values.recipient_id = user.id;

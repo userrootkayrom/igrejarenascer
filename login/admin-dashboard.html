@@ -89,6 +89,10 @@
                     <div id="admin-modules" class="grid gap-5 lg:grid-cols-2"></div>
                 </section>
 
+                <section data-view="crm" class="hidden h-[calc(100vh-9rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <iframe src="crm.html?embed=1" title="CRM da Igreja Renascer" class="h-full w-full border-0"></iframe>
+                </section>
+
                 <section data-view="usuarios" class="hidden space-y-6">
                     <div><h2 class="text-3xl font-black">Usuários e permissões</h2><p class="mt-2 text-slate-500">Somente o superadmin pode alterar o acesso de outros usuários.</p></div>
                     <div id="users-notice" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">Esta área é exclusiva do superadmin.</div>
@@ -164,7 +168,8 @@
             const standardLinks = Object.entries(PERMISSIONS).filter(([key]) => key !== "gestao" && can(key)).map(([key, label]) => `<a href="#${key}" data-section="${key}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">${icons[key]}</span>${label}</a>`).join("");
             const modulePermissions = ["ministerios", "celulas", "escalas", "presenca", "pastoral", "financeiro", "patrimonio", "manutencao", "notificacoes", "integracoes"];
             const managementLink = modulePermissions.some((permission) => can(permission)) ? `<a href="#gestao" data-section="gestao" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">▣</span>Gestão da igreja</a>` : "";
-            $("sidebar-nav").innerHTML = standardLinks + managementLink;
+            const crmLink = can("gestao") || ["membros", "eventos", "respostas", ...modulePermissions].some((permission) => can(permission)) ? `<a href="#crm" data-section="crm" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-500 transition hover:bg-green-50 hover:text-green-700"><span class="text-lg text-green-600">▤</span>CRM completo</a>` : "";
+            $("sidebar-nav").innerHTML = standardLinks + managementLink + crmLink;
             document.querySelectorAll("[data-section]").forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); showSection(link.dataset.section); }));
             $("access-summary").textContent = `${Object.keys(PERMISSIONS).filter(can).length} áreas liberadas`;
         }

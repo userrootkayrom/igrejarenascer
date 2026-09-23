@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Membro - Igreja Renascer</title>
+    <link rel="icon" type="image/x-icon" href="/img/logo_branca.png ">
+    
+    <!-- Tailwind CSS e SweetAlert2 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Configurar o Tailwind para alternar o dark mode via classe -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <!-- Script para evitar o "piscar" (FOUC) ao carregar a página -->
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased flex flex-col min-h-screen transition-colors duration-300">
+
+    <!-- 1. Cabeçalho (Header) -->
+    <header class="bg-white dark:bg-gray-900 shadow-sm dark:shadow-none dark:border-b dark:border-gray-800 fixed w-full z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="/index.html" class="flex items-center gap-3">
+                        <!-- Logo Modo Claro -->
+                        <img src="/img/logo.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto block dark:hidden">
+                        <!-- Logo Modo Escuro (Branca) -->
+                        <img src="/img/logo_branca.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto hidden dark:block">
+                        
+                        <span class="font-bold text-xl sm:text-2xl tracking-tighter text-gray-900 dark:text-white">
+                            IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span>
+                        </span>
+                    </a>
+                </div>
+
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Início</a>
+                    <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Quem Somos</a>
+                    <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Programação</a>
+                    <a href="/site_igreja/galeria.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Galeria</a>
+                    <a href="/site_igreja/generosidade.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Contribua</a>
+                </nav>
+
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <!-- Botão Tema Claro/Escuro -->
+                    <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+
+                    <div class="hidden md:block">
+                        <a href="/login/index.html" class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Login</a>
+                    </div>
+
+                    <div class="md:hidden flex items-center">
+                        <button id="btn-menu" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 focus:outline-none p-2">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>  
+
+        <div id="menu-mobile" class="hidden md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-lg absolute w-full left-0 top-20 z-40 flex flex-col py-4 px-6 space-y-4">
+            <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Início</a>
+            <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Quem Somos</a>
+            <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Programação</a>
+            <a href="/site_igreja/galeria.html" class="text-gray-600 dark:text-gray-500 font-medium text-lg transition">Galeria</a>
+            <div class="pt-2">
+                <a href="/site_igreja/generosidade.html" class="inline-block bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Contribua</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Imagem de Fundo Fixa (Parallax effect e base para o Glassmorphism) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Igreja Família" class="w-full h-full object-cover">
+        <!-- O Gradiente dá destaque ao texto e funde a imagem -->
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/70 to-gray-900/95"></div>
+    </div>
+
+    <!-- 2. Conteúdo Principal: Cadastro Dividido em 2 Colunas (Glassmorphism) -->
+    <main class="flex-grow relative z-10 pt-32 pb-20 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+                
+                <!-- COLUNA ESQUERDA: Texto e Frase -->
+                <div class="lg:col-span-5 relative">
+                    <div class="lg:sticky lg:top-32">
+                        <span class="bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-400 px-4 py-1.5 rounded-full text-sm font-bold tracking-widest uppercase mb-6 inline-block shadow-sm">Faça Parte</span>
+                        
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight drop-shadow-sm">
+                            Mais que uma igreja, <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">uma família.</span>
+                        </h1>
+                        
+                        <p class="text-lg text-gray-300 mb-8 leading-relaxed font-light drop-shadow-sm">
+                            Preencha a sua ficha de membro e oficialize a sua caminhada connosco. Queremos conhecer os seus dons e integrá-lo(a) na nossa comunidade.
+                        </p>
+                        
+                        <!-- Cartão decorativo de Versículo (Glass) -->
+                        <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hidden md:block">
+                            <p class="italic text-gray-200 mb-4 font-light leading-relaxed">
+                                "Assim, já não sois estrangeiros nem forasteiros, mas concidadãos dos santos, e da família de Deus."
+                            </p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-inner border border-white/10">📖</div>
+                                <div>
+                                    <p class="font-bold text-white text-sm tracking-wide">Efésios 2:19</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUNA DIREITA: Ficha de Preenchimento -->
+                <div class="lg:col-span-7">
+                    <form id="form-novo-aqui" class="space-y-8 relative z-20">
+                        
+                        <!-- CARTÃO 1: DADOS PESSOAIS -->
+                        <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/20 pb-4">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-inner">👤</div>
+                                <h3 class="text-xl font-bold text-white drop-shadow-sm">Dados Pessoais</h3>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Nome Completo <span class="text-red-400">*</span></label>
+                                    <input type="text" id="nome" required class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Data de Nascimento</label>
+                                    <input type="date" id="data_nascimento" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition [color-scheme:dark]">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Gênero</label>
+                                    <select id="genero" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition appearance-none cursor-pointer">
+                                        <option value="" disabled selected class="text-gray-900">Selecione...</option>
+                                        <option value="Masculino" class="text-gray-900">Masculino</option>
+                                        <option value="Feminino" class="text-gray-900">Feminino</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Estado Civil</label>
+                                    <select id="estado_civil" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition appearance-none cursor-pointer">
+                                        <option value="" disabled selected class="text-gray-900">Selecione...</option>
+                                        <option value="Solteiro(a)" class="text-gray-900">Solteiro(a)</option>
+                                        <option value="Casado(a)" class="text-gray-900">Casado(a)</option>
+                                        <option value="Divorciado(a)" class="text-gray-900">Divorciado(a)</option>
+                                        <option value="Viúvo(a)" class="text-gray-900">Viúvo(a)</option>
+                                        <option value="Noivo(a)" class="text-gray-900">Noivo(a)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Nome do Cônjuge <span class="font-light text-gray-400">(Opcional)</span></label>
+                                    <input type="text" id="conjuge" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Nome dos Filhos e Idades <span class="font-light text-gray-400">(Opcional)</span></label>
+                                    <input type="text" id="filhos" placeholder="Ex: João (12), Maria (8)" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARTÃO 2: CONTATO -->
+                        <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/20 pb-4">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-inner">📍</div>
+                                <h3 class="text-xl font-bold text-white drop-shadow-sm">Endereço e Contato</h3>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Endereço Completo</label>
+                                    <input type="text" id="endereco" placeholder="Rua, Número, Complemento..." class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Bairro</label>
+                                    <input type="text" id="bairro" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Cidade / Estado</label>
+                                    <input type="text" id="cidade" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">WhatsApp / Celular <span class="text-red-400">*</span></label>
+                                    <input type="tel" id="telefone" required placeholder="(00) 00000-0000" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">E-mail</label>
+                                    <input type="email" id="email" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARTÃO 3: VIDA ESPIRITUAL -->
+                        <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/20 pb-4">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-inner">✨</div>
+                                <h3 class="text-xl font-bold text-white drop-shadow-sm">Vida Espiritual</h3>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Data de Conversão <span class="font-light text-gray-400">(Aproximada)</span></label>
+                                    <input type="text" id="data_conversao" placeholder="Ex: Março de 2018" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Já foi batizado(a)?</label>
+                                    <select id="batizado" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition appearance-none cursor-pointer">
+                                        <option value="" disabled selected class="text-gray-900">Selecione...</option>
+                                        <option value="Sim" class="text-gray-900">Sim</option>
+                                        <option value="Não" class="text-gray-900">Não</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Se sim, em qual data e igreja foi batizado(a)?</label>
+                                    <input type="text" id="detalhes_batismo" placeholder="Ex: 10/05/2019 - Assembleia de Deus" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Faz parte de um Pequeno Grupo?</label>
+                                    <select id="grupo_pequeno" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition appearance-none cursor-pointer">
+                                        <option value="" disabled selected class="text-gray-900">Selecione...</option>
+                                        <option value="Sim" class="text-gray-900">Sim</option>
+                                        <option value="Não" class="text-gray-900">Não</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">É dizimista?</label>
+                                    <select id="dizimista" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition appearance-none cursor-pointer">
+                                        <option value="" disabled selected class="text-gray-900">Selecione...</option>
+                                        <option value="Sim" class="text-gray-900">Sim</option>
+                                        <option value="Não" class="text-gray-900">Não</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Já participou de algum ministério? Qual?</label>
+                                    <input type="text" id="ministerio_participou" placeholder="Ex: Louvor, Recepção, etc." class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Gostaria de servir em qual área?</label>
+                                    <input type="text" id="ministerio_deseja" placeholder="Ex: Mídia, Crianças, Louvor" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-white mb-2">Tem algum dom ou talento especial?</label>
+                                    <input type="text" id="dons" placeholder="Toco violão, gosto de fotografia..." class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARTÃO 4: EXTRAS E TERMOS -->
+                        <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/20 pb-4">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-inner">📝</div>
+                                <h3 class="text-xl font-bold text-white drop-shadow-sm">Informações Adicionais</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-6 mb-8">
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Possui alguma necessidade especial ou restrição de saúde?</label>
+                                    <input type="text" id="necessidade_especial" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-white mb-2">Tem algum curso teológico ou treinamento ministerial?</label>
+                                    <input type="text" id="curso_teologico" class="w-full px-4 py-3 bg-gray-900/50 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                                </div>
+                            </div>
+
+                            <!-- Bloco de Aceite (Glassmorphism) -->
+                            <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 mt-8">
+                                <h4 class="font-bold text-green-400 mb-3 flex items-center gap-2">
+                                    <span>✅</span> Autorização e Compromisso
+                                </h4>
+                                <label class="flex items-start gap-4 cursor-pointer group">
+                                    <div class="relative flex items-center mt-1">
+                                        <input type="checkbox" id="termo_aceite" required class="w-6 h-6 border-2 border-white/30 rounded-md bg-gray-900/50 text-green-500 focus:ring-green-500 transition cursor-pointer">
+                                    </div>
+                                    <span class="text-sm text-gray-300 leading-relaxed group-hover:text-white transition">
+                                        Declaro que as informações acima são verdadeiras e me comprometo a caminhar em comunhão com esta igreja, seguindo seus princípios e ensinamentos baseados na Palavra de Deus.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-green-600/80 backdrop-blur-md border border-green-500/50 text-white px-6 py-5 rounded-2xl font-bold text-xl hover:bg-green-500 hover:-translate-y-1 transition-all duration-300 shadow-[0_4px_20px_0_rgba(22,163,74,0.4)] flex items-center justify-center gap-3">
+                                <span>📤</span> Finalizar e Enviar Ficha
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- 6. Rodapé (Footer) -->
+    <footer class="bg-gray-900 dark:bg-black text-white py-16 relative z-10 border-t border-white/10 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+               <a href="/index.html" class="font-bold text-2xl tracking-tighter text-white">IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span></a>
+                <p class="mt-4 text-gray-400">NÓS SOMOS FAMÍLIA! <br/>
+                UM LUGAR PARA VOCÊ RENASCER!</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Contatos</h4>
+                <div class="space-y-4">
+                    <p><a href="https://maps.app.goo.gl/Tsh1XxxPJbQxeLjg8" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Av. São João, 805 - Capim Branco II</a></p>
+                    <p><a href="https://whatsa.me/5538999956975" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Contato: (38) 99956-9758</a></p>
+                    <p><a href="https://www.instagram.com/igrejarenascerunai/" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Instagram: @igrejarenascerunai</a></p>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Fique por dentro</h4>
+                <form id="form-newsletter" class="flex gap-2">
+                    <input type="email" id="email-newsletter" placeholder="Seu melhor e-mail" class="w-full px-4 py-2 rounded-lg text-gray-900 dark:text-white dark:bg-gray-800 dark:border dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    <button type="submit" class="bg-green-600 px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition">Assinar</button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+            &copy; 2026 Igreja Renascer <br/> Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <!-- Scripts da Interface -->
+    <script>
+        const btnMenu = document.getElementById('btn-menu');
+        const menuMobile = document.getElementById('menu-mobile');
+
+        btnMenu.addEventListener('click', () => {
+            menuMobile.classList.toggle('hidden');
+        });
+
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        var themeToggleBtn = document.getElementById('theme-toggle');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    </script>
+
+    <!-- Script do Firebase Integrado (Mantém o SweetAlert2) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
+            authDomain: "site-renascer-eef39.firebaseapp.com",
+            projectId: "site-renascer-eef39",
+            storageBucket: "site-renascer-eef39.firebasestorage.app",
+            messagingSenderId: "1043023040737",
+            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const formNovoAqui = document.getElementById('form-novo-aqui');
+        
+        if(formNovoAqui) {
+            formNovoAqui.addEventListener('submit', async (e) => {
+                e.preventDefault(); 
+                
+                const botaoSubmit = formNovoAqui.querySelector('button[type="submit"]');
+                const textoOriginal = botaoSubmit.innerHTML;
+                
+                botaoSubmit.innerHTML = "<span>⏳</span> A Enviar Ficha...";
+                botaoSubmit.disabled = true;
+                botaoSubmit.classList.add('opacity-75');
+
+                const payload = {
+                    nome: document.getElementById('nome').value,
+                    data_nascimento: document.getElementById('data_nascimento').value,
+                    genero: document.getElementById('genero').value,
+                    estado_civil: document.getElementById('estado_civil').value,
+                    conjuge: document.getElementById('conjuge').value,
+                    filhos: document.getElementById('filhos').value,
+                    endereco: document.getElementById('endereco').value,
+                    bairro: document.getElementById('bairro').value,
+                    cidade: document.getElementById('cidade').value,
+                    telefone: document.getElementById('telefone').value,
+                    email: document.getElementById('email').value,
+                    data_conversao: document.getElementById('data_conversao').value,
+                    batizado: document.getElementById('batizado').value,
+                    detalhes_batismo: document.getElementById('detalhes_batismo').value,
+                    grupo_pequeno: document.getElementById('grupo_pequeno').value,
+                    dizimista: document.getElementById('dizimista').value,
+                    ministerio_participou: document.getElementById('ministerio_participou').value,
+                    ministerio_deseja: document.getElementById('ministerio_deseja').value,
+                    dons: document.getElementById('dons').value,
+                    necessidade_especial: document.getElementById('necessidade_especial').value,
+                    curso_teologico: document.getElementById('curso_teologico').value,
+                    termo_aceite: document.getElementById('termo_aceite').checked,
+                    data_contato: new Date().toISOString(),
+                    status: "novo",
+                    tipo: "Ficha Completa de Membro"
+                };
+
+                try {
+                    await addDoc(collection(db, "conexoes_novos_membros"), payload);
+                    
+                    Swal.fire({
+                        title: 'Cadastro Recebido!',
+                        text: 'A sua ficha foi enviada com sucesso para a nossa liderança.',
+                        icon: 'success',
+                        confirmButtonColor: '#16a34a'
+                    }).then(() => {
+                        formNovoAqui.reset();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+
+                } catch (error) {
+                    console.error("Erro ao salvar: ", error);
+                    Swal.fire('Erro!', 'Houve um problema ao enviar a sua ficha. Tente novamente mais tarde.', 'error');
+                } finally {
+                    botaoSubmit.innerHTML = textoOriginal;
+                    botaoSubmit.disabled = false;
+                    botaoSubmit.classList.remove('opacity-75');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

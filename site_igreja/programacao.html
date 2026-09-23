@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programação - Igreja Renascer</title>
+    <link rel="icon" type="image/x-icon" href="/img/logo_branca.png ">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased flex flex-col min-h-screen transition-colors duration-300">
+
+    <header class="bg-white dark:bg-gray-900 shadow-sm dark:shadow-none dark:border-b dark:border-gray-800 fixed w-full z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                  <div class="flex-shrink-0 flex items-center">
+                    <a href="/index.html" class="flex items-center gap-3">
+                        <!-- Logo Modo Claro -->
+                        <img src="/img/logo.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto block dark:hidden">
+                        <!-- Logo Modo Escuro (Branca) -->
+                        <img src="/img/logo_branca.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto hidden dark:block">
+                        
+                        <span class="font-bold text-xl sm:text-2xl tracking-tighter text-gray-900 dark:text-white">
+                            IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span>
+                        </span>
+                    </a>
+                </div>
+                
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Início</a>
+                    <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Quem Somos</a>
+                    <a href="/site_igreja/programacao.html" class="text-green-600 dark:text-green-500 font-semibold border-b-2 border-green-600 dark:border-green-500 pb-1">Programação</a>
+                    <a href="/site_igreja/galeria.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Galeria</a>
+                    <a href="/site_igreja/generosidade.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Contribua</a>
+                </nav>
+
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    
+                    <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+
+                    <div class="hidden md:block">
+                        <a href="/login/index.html" class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Login</a>
+                    </div>
+
+                    <div class="md:hidden flex items-center">
+                        <button id="btn-menu" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 focus:outline-none p-2">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>  
+
+        <div id="menu-mobile" class="hidden md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-lg absolute w-full left-0 top-20 z-40 flex flex-col py-4 px-6 space-y-4">
+            <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Início</a>
+            <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Quem Somos</a>
+            <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Programação</a>
+            <a href="/site_igreja/galeria.html" class="text-gray-600 dark:text-gray-500 font-medium text-lg transition">Galeria</a>
+            <div class="pt-2">
+                <a href="/site_igreja/generosidade.html" class="inline-block bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Contribua</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Imagem de Fundo Fixa (Parallax effect e base para o Glassmorphism) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <img src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Culto" class="w-full h-full object-cover">
+        <!-- O Gradiente dá destaque ao texto e funde a imagem -->
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/70 to-gray-900/95"></div>
+    </div>
+
+    <!-- 2. Conteúdo Principal (Glassmorphism) -->
+    <main class="flex-grow relative z-10 pt-32 pb-24 min-h-screen">
+        
+        <!-- Hero Interno -->
+        <div class="max-w-4xl mx-auto text-center px-4 mb-16 pt-10">
+            <span class="text-green-400 font-bold tracking-[0.3em] uppercase text-sm mb-4 block drop-shadow-md">Nossa Agenda</span>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 mb-6 tracking-tight drop-shadow-sm">
+                Programe-se
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-200 mb-10 font-light tracking-wide drop-shadow max-w-2xl mx-auto">
+                Reunir a igreja é um dos maiores privilégios. Confira nossos horários e junte-se a nós durante a semana.
+            </p>
+        </div>
+
+        <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-white drop-shadow-sm">Cultos Semanais</h2>
+                <p class="text-gray-300 font-light mt-2 tracking-wide">Encontros fixos que acontecem toda semana.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Culto 1 -->
+                <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 transition-all duration-500 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-xs font-bold text-green-400 uppercase tracking-widest bg-green-500/20 backdrop-blur-md border border-green-500/30 px-3 py-1.5 rounded-full shadow-sm">Segunda-Feira</span>
+                            <span class="text-2xl drop-shadow-md">🌅</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2 drop-shadow-sm">GM -- Grupos de Mesa</h3>
+                        <p class="text-gray-300 font-light mb-6 text-sm leading-relaxed">Uma extensão de nossa igreja, onde os membros se reúnem para estudo bíblico e comunhão.</p>
+                        <div class="flex items-center text-white bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span class="font-bold tracking-wide">🕕 19:30 Horas</span> 
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Culto 2 -->
+                <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 transition-all duration-500 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-xs font-bold text-gray-200 uppercase tracking-widest bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-full shadow-sm">Quarta-Feira</span>
+                            <span class="text-2xl drop-shadow-md">📖</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2 drop-shadow-sm">Celebração Profética</h3>
+                        <p class="text-gray-300 font-light mb-6 text-sm leading-relaxed">Um ambiente focado no estudo profundo da palavra e no fortalecimento da fé.</p>
+                        <div class="flex items-center text-white bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span class="font-bold tracking-wide">🕗 19:30 Horas</span>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Culto 3 -->
+                 <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 transition-all duration-500 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-xs font-bold text-green-400 uppercase tracking-widest bg-green-500/20 backdrop-blur-md border border-green-500/30 px-3 py-1.5 rounded-full shadow-sm">Domingo</span>
+                            <span class="text-2xl drop-shadow-md">🙌</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2 drop-shadow-sm">Culto de Celebração</h3>
+                        <p class="text-gray-300 font-light mb-6 text-sm leading-relaxed">Nosso encontro principal para toda a família, com louvor, palavra e espaço Kids.</p>
+                        <div class="flex items-center text-white bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-inner">
+                            <span class="font-bold tracking-wide">🕕 18:00 Horas</span> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-10 border-t border-white/10">
+            <div class="mb-12 text-center md:text-left">
+                <h2 class="text-3xl font-bold text-white drop-shadow-sm">Próximos Eventos</h2>
+                <p class="text-gray-300 font-light mt-2 tracking-wide">Fique por dentro da programação especial desta semana.</p>
+            </div>
+
+            <div id="container-eventos-dinamicos" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <p class="text-gray-300 font-light animate-pulse">Carregando eventos...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 dark:bg-black text-white py-16 relative z-10 border-t border-white/10 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+               <a href="/index.html" class="font-bold text-2xl tracking-tighter text-white">IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span></a>
+                <p class="mt-4 text-gray-400">NÓS SOMOS FAMÍLIA! <br/>
+                UM LUGAR PARA VOCÊ RENASCER!</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Contatos</h4>
+                <div class="space-y-4">
+                    <p>
+                        <a href="https://maps.app.goo.gl/Tsh1XxxPJbQxeLjg8" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Av. São João, 805 - Capim Branco II</a>
+                    </p>
+                    <p>
+                        <a href="https://whatsa.me/5538999956975" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Contato: (38) 99956-9758</a>
+                    </p>
+                    <p>
+                        <a href="https://www.instagram.com/igrejarenascerunai/" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Instagram: @igrejarenascerunai</a>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Fique por dentro</h4>
+                <form id="form-newsletter" class="flex gap-2">
+                    <input type="email" id="email-newsletter" placeholder="Seu melhor e-mail" class="w-full px-4 py-2 rounded-lg text-gray-900 dark:text-white dark:bg-gray-800 dark:border dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    <button type="submit" class="bg-green-600 px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition">Assinar</button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+            © 2026 Igreja Renascer <br/> Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <script>
+        // Lógica do Menu Mobile
+        const btnMenu = document.getElementById('btn-menu');
+        const menuMobile = document.getElementById('menu-mobile');
+
+        btnMenu.addEventListener('click', () => {
+            menuMobile.classList.toggle('hidden');
+        });
+
+        // Lógica do Theme Toggle (Claro / Escuro)
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        var themeToggleBtn = document.getElementById('theme-toggle');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getFirestore, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
+            authDomain: "site-renascer-eef39.firebaseapp.com",
+            projectId: "site-renascer-eef39",
+            storageBucket: "site-renascer-eef39.firebasestorage.app",
+            messagingSenderId: "1043023040737",
+            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const container = document.getElementById('container-eventos-dinamicos');
+
+        // 1. Pegar a data de HOJE no formato correto localmente (YYYY-MM-DD)
+        const hoje = new Date();
+        const year = hoje.getFullYear();
+        const month = String(hoje.getMonth() + 1).padStart(2, '0');
+        const day = String(hoje.getDate()).padStart(2, '0');
+        const dataHojeStr = `${year}-${month}-${day}`;
+
+        // 2. Pegar a data LIMITE (hoje + 7 dias)
+        const limite = new Date(hoje);
+        limite.setDate(limite.getDate() + 7);
+        const limiteYear = limite.getFullYear();
+        const limiteMonth = String(limite.getMonth() + 1).padStart(2, '0');
+        const limiteDay = String(limite.getDate()).padStart(2, '0');
+        const dataLimiteStr = `${limiteYear}-${limiteMonth}-${limiteDay}`;
+
+        // 3. Montar a consulta (query) filtrando apenas eventos dessa janela
+        const q = query(
+            collection(db, "agenda_eventos"), 
+            where("data_evento", ">=", dataHojeStr),
+            where("data_evento", "<=", dataLimiteStr),
+            orderBy("data_evento", "asc")
+        );
+        
+        onSnapshot(q, (snapshot) => {
+            container.innerHTML = ''; 
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-gray-300 font-light italic">Nenhum evento especial agendado para esta semana.</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const evento = doc.data();
+                
+                // CARTÃO DINÂMICO MODIFICADO PARA O ESTILO GLASSMORPHISM
+                const card = `
+                    <div class="flex flex-col sm:flex-row bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all duration-300 hover:bg-white/20 group">
+                        
+                        <div class="sm:w-2/5 relative min-h-[200px] overflow-hidden">
+                            <img src="${evento.imagem_url || 'https://via.placeholder.com/400x300'}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                            
+                            <div class="absolute bottom-4 left-4 text-white z-10">
+                                <span class="bg-green-500/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-green-400/50 uppercase shadow-sm">${evento.data_texto}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 sm:w-3/5 flex flex-col justify-center relative z-10">
+                            <h3 class="text-2xl font-bold text-white mb-2 drop-shadow-sm">${evento.titulo}</h3>
+                            <p class="text-gray-300 font-light text-sm mb-4 leading-relaxed">${evento.descricao}</p>
+                            <div class="flex items-center text-green-400 font-bold text-sm tracking-wide gap-2">
+                                <span>📍</span>
+                                <span>${evento.local} • ${evento.horario}</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        });
+    </script>
+</body>
+</html>

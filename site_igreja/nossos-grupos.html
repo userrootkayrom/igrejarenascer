@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nossos Grupos - Igreja Renascer</title>
+    <link rel="icon" type="image/x-icon" href="/img/logo_branca.png ">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configurar o Tailwind para alternar o dark mode via classe -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <!-- Script para evitar o "piscar" (FOUC) ao carregar a página -->
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+
+    <style>
+        /* Esconde a barra de rolagem nativa para um visual mais limpo no carrossel */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased flex flex-col min-h-screen transition-colors duration-300">
+
+    <!-- 1. Cabeçalho (Header) -->
+    <header class="bg-white dark:bg-gray-900 shadow-sm dark:shadow-none dark:border-b dark:border-gray-800 fixed w-full z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                 <div class="flex-shrink-0 flex items-center">
+                    <a href="/index.html" class="flex items-center gap-3">
+                        <!-- Logo Modo Claro -->
+                        <img src="/img/logo.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto block dark:hidden">
+                        <!-- Logo Modo Escuro (Branca) -->
+                        <img src="/img/logo_branca.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto hidden dark:block">
+                        
+                        <span class="font-bold text-xl sm:text-2xl tracking-tighter text-gray-900 dark:text-white">
+                            IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span>
+                        </span>
+                    </a>
+                </div>
+
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Início</a>
+                    <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Quem Somos</a>
+                    <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Programação</a>
+                    <a href="/site_igreja/galeria.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Galeria</a>
+                    <a href="/site_igreja/generosidade.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Contribua</a>
+                </nav>
+
+                <!-- Grupo de botões à direita -->
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    
+                    <!-- Botão Tema Claro/Escuro -->
+                    <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition">
+                        <!-- Ícone da Lua (Escuro) -->
+                        <svg id="theme-toggle-dark-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                        <!-- Ícone do Sol (Claro) -->
+                        <svg id="theme-toggle-light-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+
+                    <div class="hidden md:block">
+                        <a href="/login/index.html" class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Login</a>
+                    </div>
+
+                    <div class="md:hidden flex items-center">
+                        <button id="btn-menu" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 focus:outline-none p-2">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>  
+
+        <div id="menu-mobile" class="hidden md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-lg absolute w-full left-0 top-20 z-40 flex flex-col py-4 px-6 space-y-4">
+            <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Início</a>
+            <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Quem Somos</a>
+            <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Programação</a>
+            <a href="/site_igreja/galeria.html" class="text-gray-600 dark:text-gray-500 font-medium text-lg transition">Galeria</a>
+            <div class="pt-2">
+                <a href="/site_igreja/generosidade.html" class="inline-block bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Contribua</a>
+            </div>
+            <div class="pt-2 border-t dark:border-gray-800 mt-2">
+                <a href="/login/index.html" class="inline-block text-green-600 dark:text-green-500 font-semibold hover:text-green-700 dark:hover:text-green-400 transition">Login (Admin)</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Imagem de Fundo Fixa (Parallax effect e base para o Glassmorphism) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Comunhão" class="w-full h-full object-cover">
+        <!-- O Gradiente dá destaque ao texto e funde a imagem -->
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/70 to-gray-900/95"></div>
+    </div>
+
+    <!-- 2. Hero Interno e Conteúdo Principal -->
+    <main class="flex-grow relative z-10 pt-32 pb-20 min-h-screen">
+        
+        <div class="max-w-4xl mx-auto text-center px-4 mb-16 pt-10">
+            <span class="text-green-400 font-bold tracking-[0.3em] uppercase text-sm mb-4 block drop-shadow-md">Nossos Grupos de Mesa</span>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 mb-6 tracking-tight drop-shadow-sm">
+                A vida em comunhão
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-200 mb-10 font-light tracking-wide drop-shadow max-w-2xl mx-auto">
+                Mais do que reuniões, somos uma família. Deslize para conhecer os perfis dos nossos grupos e encontre o seu lugar.
+            </p>
+        </div>
+
+        <!-- Container do Carrossel (Glassmorphism) -->
+        <section class="relative max-w-7xl mx-auto py-4">
+            <!-- Botão Anterior (Esquerda) -->
+            <button id="prevBtn" class="absolute left-2 md:-left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 backdrop-blur-md text-white p-3 md:p-4 rounded-full shadow-[0_4px_15px_0_rgba(0,0,0,0.3)] hover:bg-white/30 transition-all border border-white/20 focus:outline-none hidden sm:flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+
+            <!-- Contêiner do Carrossel -->
+            <div id="carousel-container" class="flex overflow-x-auto snap-x snap-mandatory gap-6 px-4 sm:px-6 lg:px-8 pb-10 hide-scrollbar scroll-smooth">
+                
+                <!-- Grupo 1: Filhos de Sião -->
+                <div class="snap-center shrink-0 w-[90vw] md:w-[550px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none z-10"></div>
+                    <!-- Área da Imagem -->
+                    <div class="aspect-[16/9] w-full overflow-hidden bg-gray-900 relative">
+                        <img src="/img/gm-siao.jpeg" alt="Grupo Filhos de Sião" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <!-- Área de Texto Base -->
+                    <div class="p-8 relative z-20 -mt-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-3xl font-bold text-white drop-shadow-sm">Filhos de Sião</h3>
+                            <span class="bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase shadow-sm mt-1">Segunda-feira</span>
+                        </div>
+                        <div class="space-y-3 mt-4 mb-8">
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">🕒</span> 19:30 Horas
+                            </p>
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">📍</span> Itapuã - Zé Pedro
+                            </p>
+                        </div>
+                        <!-- Link/Botão 1 -->
+                        <a href="https://wa.me/qr/KRRLJEAJPKBYN1" target="_blank" class="w-full bg-green-600/80 backdrop-blur-md border border-green-500/50 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-green-500 transition-all duration-300 shadow-[0_4px_15px_0_rgba(22,163,74,0.4)] flex items-center justify-center gap-2">
+                            Entrar em Contato 💬
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Grupo 2: Firmados na Rocha -->
+                <div class="snap-center shrink-0 w-[90vw] md:w-[550px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none z-10"></div>
+                    <div class="aspect-[16/9] w-full overflow-hidden bg-gray-900 relative">
+                        <img src="/img/gm-rocha.jpeg" alt="Grupo Firmados na Rocha" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <div class="p-8 relative z-20 -mt-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-3xl font-bold text-white drop-shadow-sm">Firmados na Rocha</h3>
+                            <span class="bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase shadow-sm mt-1">Segunda-feira</span>
+                        </div>
+                        <div class="space-y-3 mt-4 mb-8">
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">🕒</span> 20:00 Horas
+                            </p>
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">📍</span> Riviera Park
+                            </p>
+                        </div>
+                        <!-- Link/Botão 2 -->
+                        <a href="https://wa.me/5538999569758?src=qr" target="_blank" class="w-full bg-green-600/80 backdrop-blur-md border border-green-500/50 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-green-500 transition-all duration-300 shadow-[0_4px_15px_0_rgba(22,163,74,0.4)] flex items-center justify-center gap-2">
+                            Entrar em Contato 💬
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Grupo 3: Arca da Aliança -->
+                <div class="snap-center shrink-0 w-[90vw] md:w-[550px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none z-10"></div>
+                    <div class="aspect-[16/9] w-full overflow-hidden bg-gray-900 relative">
+                        <img src="/img/gm-arca.jpeg" alt="Grupo Arca da Aliança" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <div class="p-8 relative z-20 -mt-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-3xl font-bold text-white drop-shadow-sm">Arca da Aliança</h3>
+                            <span class="bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase shadow-sm mt-1">Segunda-feira</span>
+                        </div>
+                        <div class="space-y-3 mt-4 mb-8">
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">🕒</span> 20:00 Horas
+                            </p>
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">📍</span> Iuna
+                            </p>
+                        </div>
+                        <!-- Link/Botão 3 -->
+                        <a href="https://wa.me/qr/KQV7F2ECDW3LO1" target="_blank" class="w-full bg-green-600/80 backdrop-blur-md border border-green-500/50 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-green-500 transition-all duration-300 shadow-[0_4px_15px_0_rgba(22,163,74,0.4)] flex items-center justify-center gap-2">
+                            Entrar em Contato 💬
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Grupo 4: Guerreiros de Yeshua -->
+                <div class="snap-center shrink-0 w-[90vw] md:w-[550px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:bg-white/20 hover:border-white/40 relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none z-10"></div>
+                    <div class="aspect-[16/9] w-full overflow-hidden bg-gray-900 relative">
+                        <img src="/img/gm-yeshua.jpeg" alt="Grupo Guerreiros de Yeshua" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <div class="p-8 relative z-20 -mt-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-3xl font-bold text-white drop-shadow-sm">Guerreiros de Yeshua</h3>
+                            <span class="bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase shadow-sm mt-1">Segunda-feira</span>
+                        </div>
+                        <div class="space-y-3 mt-4 mb-8">
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">🕒</span> 19:00 Horas
+                            </p>
+                            <p class="text-gray-300 flex items-center gap-3 font-light tracking-wide">
+                                <span class="text-xl drop-shadow-sm">📍</span> Centro
+                            </p>
+                        </div>
+                        <!-- Link/Botão 4 -->
+                        <a href="https://wa.me/qr/J65OYU7FTVGBN1" target="_blank" class="w-full bg-green-600/80 backdrop-blur-md border border-green-500/50 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-green-500 transition-all duration-300 shadow-[0_4px_15px_0_rgba(22,163,74,0.4)] flex items-center justify-center gap-2">
+                            Entrar em Contato 💬
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Espaço vazio no final para não colar na borda direita -->
+                <div class="shrink-0 w-4 sm:w-8"></div>
+            </div>
+
+            <!-- Botão Próximo (Direita) -->
+            <button id="nextBtn" class="absolute right-2 md:-right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 backdrop-blur-md text-white p-3 md:p-4 rounded-full shadow-[0_4px_15px_0_rgba(0,0,0,0.3)] hover:bg-white/30 transition-all border border-white/20 focus:outline-none hidden sm:flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+        </section>
+
+        <!-- 4. Call to Action (Chamada para o formulário) -->
+        <section class="py-16 px-4 sm:px-6 lg:px-8 relative z-20">
+            <div class="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-10 md:p-16 text-center max-w-5xl mx-auto shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-50 pointer-events-none"></div>
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-sm">Gostou de algum perfil?</h2>
+                    <p class="text-gray-300 mb-10 max-w-2xl mx-auto text-lg font-light tracking-wide leading-relaxed">Deixe seus dados e nossa liderança conectará você ao grupo perfeito mais próximo da sua casa.</p>
+                    <a href="encontre-um-grupo.html" class="inline-block bg-white/20 backdrop-blur-md border border-white/30 text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-white/30 transition-all duration-300 shadow-[0_4px_15px_0_rgba(255,255,255,0.1)]">
+                        Preencher Formulário de Conexão
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 6. Rodapé (Footer) -->
+    <footer class="bg-gray-900 dark:bg-black text-white py-16 relative z-10 border-t border-white/10 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+               <a href="/index.html" class="font-bold text-2xl tracking-tighter text-white">IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span></a>
+                <p class="mt-4 text-gray-400">NÓS SOMOS FAMÍLIA! <br/>
+                UM LUGAR PARA VOCÊ RENASCER!</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Contatos</h4>
+                <div class="space-y-4">
+                    <p>
+                        <a href="https://maps.app.goo.gl/Tsh1XxxPJbQxeLjg8" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Av. São João, 805 - Capim Branco II</a>
+                    </p>
+                    <p>
+                        <a href="https://whatsa.me/5538999956975" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Contato: (38) 99956-9758</a>
+                    </p>
+                    <p>
+                        <a href="https://www.instagram.com/igrejarenascerunai/" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Instagram: @igrejarenascerunai</a>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Fique por dentro</h4>
+                <form id="form-newsletter" class="flex gap-2">
+                    <input type="email" id="email-newsletter" placeholder="Seu melhor e-mail" class="w-full px-4 py-2 rounded-lg text-gray-900 dark:text-white dark:bg-gray-800 dark:border dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    <button type="submit" class="bg-green-600 px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition">Assinar</button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+            &copy; 2026 Igreja Renascer <br/> Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <!-- Scripts unificados -->
+    <script>
+        // ----------------------------------------
+        // Lógica do Menu Mobile
+        // ----------------------------------------
+        const btnMenu = document.getElementById('btn-menu');
+        const menuMobile = document.getElementById('menu-mobile');
+
+        btnMenu.addEventListener('click', () => {
+            menuMobile.classList.toggle('hidden');
+        });
+
+        // ----------------------------------------
+        // Lógica do Theme Toggle (Claro / Escuro)
+        // ----------------------------------------
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        var themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Mostra o ícone correspondente ao carregar a página
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            // Alterna os ícones
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            // Salva a configuração no Local Storage
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+// ----------------------------------------
+        // Lógica do Carrossel de Grupos com Auto-Scroll Suave
+        // ----------------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            const carousel = document.getElementById('carousel-container');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            let autoScrollTimer;
+
+            // Função para avançar suavemente
+            function scrollNext() {
+                const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+                const cardWidth = carousel.querySelector('.snap-center').offsetWidth;
+                
+                // O AJUSTE PARA CELULAR: Aumentamos a margem de leitura do final.
+                // Se a distância para o final for menor que a metade do cartão, 
+                // ele entende que chegou no último e volta para o início.
+                if (Math.ceil(carousel.scrollLeft) >= maxScrollLeft - (cardWidth / 2)) {
+                    carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    // Rola 80% da largura do cartão, deixando o CSS centralizar o resto suavemente
+                    carousel.scrollBy({ left: cardWidth * 0.8, behavior: 'smooth' });
+                }
+            }
+
+            // Função para voltar suavemente
+            function scrollPrev() {
+                const cardWidth = carousel.querySelector('.snap-center').offsetWidth;
+
+                if (carousel.scrollLeft <= 10) {
+                    carousel.scrollTo({ left: carousel.scrollWidth, behavior: 'smooth' });
+                } else {
+                    carousel.scrollBy({ left: -(cardWidth * 0.8), behavior: 'smooth' });
+                }
+            }
+
+            function startAutoScroll() {
+                autoScrollTimer = setInterval(scrollNext, 4000); 
+            }
+
+            function stopAutoScroll() {
+                clearInterval(autoScrollTimer);
+            }
+
+            function resetAutoScroll() {
+                stopAutoScroll();
+                startAutoScroll();
+            }
+
+            // Eventos dos botões manuais
+            nextBtn.addEventListener('click', () => {
+                scrollNext();
+                resetAutoScroll();
+            });
+
+            prevBtn.addEventListener('click', () => {
+                scrollPrev();
+                resetAutoScroll();
+            });
+
+            // Pausa a rolagem para leitura confortável ao passar o mouse ou tocar na tela
+            carousel.addEventListener('mouseenter', stopAutoScroll);
+            carousel.addEventListener('mouseleave', startAutoScroll);
+            carousel.addEventListener('touchstart', stopAutoScroll, {passive: true});
+            carousel.addEventListener('touchend', startAutoScroll);
+
+            // Inicia automaticamente
+            startAutoScroll();
+        });
+    </script>
+</body>
+</html>

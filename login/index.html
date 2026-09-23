@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111516">
+    <title>Entrar - Igreja Renascer</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background: #111516;
+            color: #fff;
+        }
+
+        .login-page {
+            display: grid;
+            min-height: 100vh;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .brand-panel {
+            position: relative;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: #1c1c1c url("/img/igrejarenascer.jpg") center / cover no-repeat;
+        }
+
+        .brand-panel::before {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0, 0, 0, .08), rgba(0, 0, 0, .18));
+            content: "";
+        }
+
+        .brand-panel::after {
+            position: absolute;
+            top: 18%;
+            right: 0;
+            width: 2px;
+            height: 74%;
+            background: linear-gradient(transparent, #22c55e 12%, #22c55e 88%, transparent);
+            content: "";
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            width: min(70%, 390px);
+            text-align: center;
+        }
+
+        .brand-logo {
+            display: block;
+            width: min(100%, 330px);
+            height: auto;
+            margin: 0 auto;
+            visibility: hidden;
+        }
+
+        .form-panel {
+            position: relative;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            isolation: isolate;
+            background: #3e3327;
+        }
+
+        .form-panel::before {
+            position: absolute;
+            z-index: -2;
+            inset: -18px;
+            background-image: url("/img/login-church-background.png");
+            background-position: center;
+            background-size: cover;
+            content: "";
+            filter: blur(5px);
+            transform: scale(1.04);
+        }
+
+        .form-panel::after {
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(31, 24, 18, .6), rgba(43, 31, 20, .38)), rgba(91, 65, 35, .18);
+            content: "";
+        }
+
+        .login-card {
+            width: min(100% - 48px, 430px);
+            margin: 0 auto;
+        }
+
+        .login-title {
+            margin: 0 0 26px;
+            color: #fff;
+            font-size: clamp(1.65rem, 2.5vw, 2.25rem);
+            font-weight: 400;
+            letter-spacing: .015em;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, .55);
+        }
+
+        .login-form { display: grid; gap: 18px; }
+
+        .field {
+            width: 100%;
+            height: 45px;
+            border: 1px solid rgba(224, 225, 223, .72);
+            border-radius: 6px;
+            outline: none;
+            padding: 0 14px;
+            color: #fff;
+            background: rgba(27, 28, 27, .2);
+            font: 400 1rem Arial, sans-serif;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, .06), 0 1px 2px rgba(0, 0, 0, .18);
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+
+        .field::placeholder { color: rgba(225, 225, 225, .62); }
+        .field:focus {
+            border-color: #22c55e;
+            background: rgba(20, 21, 20, .42);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, .2);
+        }
+
+        .error {
+            border: 1px solid rgba(255, 139, 139, .75);
+            border-radius: 6px;
+            padding: 11px 13px;
+            color: #ffe2e2;
+            background: rgba(101, 21, 21, .55);
+            font: 14px Arial, sans-serif;
+        }
+
+        .error.hidden { display: none; }
+
+        .submit {
+            display: flex;
+            width: 100%;
+            height: 45px;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: 1px solid #22c55e;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #fff;
+            background: rgba(23, 24, 23, .74);
+            font: 400 1.05rem Arial, sans-serif;
+            transition: background .2s ease, border-color .2s ease, transform .2s ease;
+        }
+
+        .submit:hover { background: rgba(39, 40, 38, .9); border-color: #4ade80; }
+        .submit:active { transform: translateY(1px); }
+        .submit:disabled { cursor: wait; opacity: .65; }
+        .lock { color: #22c55e; font-size: 1.1rem; }
+
+        .public-link {
+            display: block;
+            margin-top: 22px;
+            color: rgba(255, 255, 255, .75);
+            font: 13px Arial, sans-serif;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .public-link:hover { color: #fff; }
+
+        @media (max-width: 760px) {
+            body { overflow: auto; }
+            .login-page { display: block; }
+            .brand-panel { min-height: 32vh; }
+            .brand-panel::after { top: auto; right: auto; bottom: 0; left: 10%; width: 80%; height: 2px; }
+            .brand-content { width: min(52%, 250px); padding: 30px 0; }
+            .form-panel { min-height: 68vh; padding: 42px 0; }
+            .login-card { width: min(100% - 40px, 430px); }
+        }
+    </style>
+</head>
+<body>
+    <main class="login-page">
+        <section class="brand-panel" aria-label="Igreja Renascer">
+            <div class="brand-content" aria-hidden="true"></div>
+        </section>
+        <section class="form-panel">
+            <div class="login-card">
+                <h1 class="login-title">BEM-VINDO DE VOLTA!</h1>
+                <form id="form-login" class="login-form">
+                    <div id="mensagem-erro" class="error hidden" role="alert"></div>
+                    <input id="email" class="field" type="email" required autocomplete="email" placeholder="Seu E-mail ou Telefone" aria-label="Seu e-mail">
+                    <input id="senha" class="field" type="password" required autocomplete="current-password" placeholder="Sua Senha" aria-label="Sua senha">
+                    <button class="submit" type="submit">ENTRAR <span class="lock" aria-hidden="true">🔒</span></button>
+                </form>
+                <a class="public-link" href="/index.html">Voltar para o site</a>
+            </div>
+        </section>
+    </main>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+        const app = initializeApp({
+            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
+            authDomain: "site-renascer-eef39.firebaseapp.com",
+            projectId: "site-renascer-eef39",
+            storageBucket: "site-renascer-eef39.firebasestorage.app",
+            messagingSenderId: "1043023040737",
+            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
+        });
+        const auth = getAuth(app);
+        const form = document.getElementById("form-login");
+        const error = document.getElementById("mensagem-erro");
+        const button = form.querySelector("button");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            error.classList.add("hidden");
+            button.disabled = true;
+            button.firstChild.textContent = "VERIFICANDO... ";
+            try {
+                await signInWithEmailAndPassword(auth, document.getElementById("email").value.trim(), document.getElementById("senha").value);
+                window.location.href = "/login/admin-dashboard.html";
+            } catch (loginError) {
+                console.error("Erro no login:", loginError);
+                error.textContent = "Não foi possível entrar. Confira seu e-mail e senha ou fale com o superadmin.";
+                error.classList.remove("hidden");
+                button.disabled = false;
+                button.firstChild.textContent = "ENTRAR ";
+            }
+        });
+    </script>
+</body>
+</html>

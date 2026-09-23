@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos - Admin Renascer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="/img/logo_branca.png ">
+    
+    <style>
+        body.embedded > header { display: none; }
+        body.embedded > main { padding-top: 1.25rem; }
+        body.embedded { min-width: 900px; }
+        body.dark { background: #050505 !important; color: #e2e8f0; }
+        body.dark header, body.dark #menu-mobile { background: #111111 !important; border-color: #2a2a2a !important; }
+        body.dark main > div > div, body.dark .bg-white { background: #111111 !important; border-color: #2a2a2a !important; }
+        body.dark input, body.dark select, body.dark textarea { background: #050505 !important; color: #f8fafc; border-color: #3a3a3a !important; }
+        body.dark .bg-gray-50, body.dark .bg-gray-100, body.dark .bg-gray-200 { background: #181818 !important; }
+        body.dark .text-gray-400, body.dark .text-gray-500, body.dark .text-gray-600 { color: #94a3b8 !important; }
+        body.dark .text-gray-700, body.dark .text-gray-800, body.dark .text-gray-900 { color: #e2e8f0 !important; }
+        body.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) { border-color: #2a2a2a !important; }
+        body.dark [class*="bg-green-50"] { background: #12351f !important; }
+        body.dark [class*="border-green-200"] { border-color: #24613f !important; }
+        .hide-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .hide-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .hide-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <script>if (new URLSearchParams(location.search).has("embed")) document.body.classList.add("embedded");</script>
+    <script>
+        const applyEmbeddedTheme = (theme) => document.body.classList.toggle("dark", theme === "dark");
+        applyEmbeddedTheme(localStorage.getItem("renascer-theme") || "light");
+        window.addEventListener("message", (event) => {
+            if (event.data?.type === "renascer-theme") applyEmbeddedTheme(event.data.theme);
+        });
+    </script>
+
+    <header class="bg-gray-900 text-white shadow-md relative z-50">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+         <a href="/login/admin-dashboard.html">  <h1 class="text-2xl font-bold tracking-tighter">ADMIN <span class="text-green-500">RENASCER</span></h1></a>
+            
+            <nav class="hidden md:flex space-x-8 font-medium text-sm">
+                <a href="admin-dashboard.html" class="text-gray-300 hover:text-white transition">Dashboard</a>
+                <a href="admin.html" class="text-gray-300 hover:text-white transition">Respostas do Site</a>
+                <a href="admin-membros.html" class="text-gray-300 hover:text-white transition">Membresia</a>
+                <a href="admin-eventos.html" class="text-green-400 border-b-2 border-green-400 pb-1">Publicar Eventos</a>
+                <a href="admin-perfil.html" class="text-gray-300 hover:text-white transition">Meu Perfil</a>
+            </nav>
+            
+             <a href="/index.html" target="_blank" class="hidden md:block text-sm bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 transition">Ver Site</a>
+
+            <button id="btn-menu-mobile" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+
+        <div id="menu-mobile" class="hidden md:hidden bg-gray-800 border-t border-gray-700 absolute w-full left-0 shadow-2xl">
+            <nav class="flex flex-col px-6 py-4 space-y-5 font-medium text-base">
+                <a href="admin-dashboard.html" class="block text-gray-300 hover:text-white transition">Dashboard</a>
+                <a href="admin.html" class="block text-gray-300 hover:text-white transition">Respostas do Site</a>
+                <a href="admin-membros.html" class="block text-gray-300 hover:text-white transition">Membresia</a>
+                <a href="admin-eventos.html" class="block text-gray-300 hover:text-white transition">Publicar Eventos</a>
+                <a href="admin-perfil.html" class="block text-gray-300 hover:text-white transition">Meu Perfil</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-5">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden sticky top-8">
+                <div class="p-6 border-b border-gray-100 bg-green-50 transition-colors" id="cabecalho-form">
+                    <h2 class="text-xl font-bold text-gray-800" id="titulo-form">Publicar Novo Evento</h2>
+                    <p class="text-sm text-gray-600 mt-1">Cadastre os eventos do mês, eles aparecerão na hora certa.</p>
+                </div>
+                <div class="p-6 max-h-[75vh] overflow-y-auto hide-scrollbar">
+                    <form id="form-admin-evento" class="space-y-5">
+                        
+                        <!-- NOVO CAMPO DE FOTO DA CAPA COM BASE64 -->
+                        <div>
+                            <label class="block font-bold text-sm text-gray-700 mb-2">Capa do Evento (Foto)</label>
+                            <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                <div class="w-24 h-16 rounded-lg bg-white border border-gray-300 overflow-hidden flex-shrink-0 relative shadow-sm">
+                                    <img id="preview-foto-evento" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                                    <span id="preview-placeholder" class="text-gray-400 text-[9px] uppercase font-bold tracking-widest flex items-center justify-center h-full w-full text-center p-1 relative z-0">Sem Foto</span>
+                                </div>
+                                <div class="flex-grow overflow-hidden">
+                                    <input type="file" id="evento_foto_file" accept="image/*" class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FIM DO NOVO CAMPO DE FOTO -->
+
+                        <div>
+                            <label class="block font-bold text-sm text-gray-700 mb-1">Título do Evento</label>
+                            <input type="text" id="evento_titulo" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block font-bold text-sm text-gray-700 mb-1">Data Escrita</label>
+                                <input type="text" id="evento_data_texto" placeholder="Ex: 15 de Junho" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-sm text-gray-700 mb-1">Data Real</label>
+                                <input type="date" id="evento_data_real" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required title="Define quando o evento expira e some do site">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block font-bold text-sm text-gray-700 mb-1">Horário</label>
+                                <input type="text" id="evento_horario" placeholder="Ex: 19h30" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-sm text-gray-700 mb-1">Local</label>
+                                <input type="text" id="evento_local" placeholder="Ex: Templo Principal" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-sm text-gray-700 mb-1">Descrição</label>
+                            <textarea id="evento_descricao" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="flex gap-3 pt-2">
+                            <button type="submit" id="btn-submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition shadow-lg">
+                                Publicar Evento
+                            </button>
+                            <button type="button" id="btn-cancelar" onclick="cancelarEdicao()" class="hidden bg-gray-300 text-gray-800 py-4 px-6 rounded-xl font-bold text-lg hover:bg-gray-400 transition shadow-lg">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            
+            <div class="flex flex-wrap gap-2 mb-6" id="botoes-filtro">
+                <button id="btn-semana" onclick="mudarFiltro('semana')" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-green-600 text-white shadow-md transition">📅 Esta Semana</button>
+                <button id="btn-ativos" onclick="mudarFiltro('ativos')" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 transition">📋 Todos Futuros</button>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800" id="titulo-tabela">Eventos desta Semana</h2>
+                        <p class="text-xs text-gray-500 mt-1">Os eventos expiram no dia seguinte à Data Real.</p>
+                    </div>
+                    <span id="count-badge" class="bg-gray-200 text-gray-700 px-4 py-1 rounded-full text-sm font-bold shrink-0">0</span>
+                </div>
+                
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-400 text-[10px] uppercase tracking-widest font-bold">
+                            <tr>
+                                <th class="p-4">Evento / Validade</th>
+                                <th class="p-4 hidden md:table-cell">Horário & Local</th>
+                                <th class="p-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-gray-100">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="mensagem-vazia" class="hidden p-16 text-center">
+                    <div class="text-4xl mb-3">📭</div>
+                    <h3 class="text-gray-800 font-bold text-lg">Nenhum evento aqui.</h3>
+                    <p class="text-gray-500 text-sm mt-1">A lista está vazia para este filtro.</p>
+                </div>
+
+                <div id="loading" class="p-10 text-center text-gray-400 font-medium">Limpando expirados e buscando agenda...</div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.getElementById('btn-menu-mobile')?.addEventListener('click', function() {
+            document.getElementById('menu-mobile').classList.toggle('hidden');
+        });
+
+        // Variável global para armazenar a foto do evento em Base64
+        window.fotoBase64Atual = "";
+
+        // Lógica de visualização e compressão da foto (Base64)
+        document.getElementById('evento_foto_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('preview-foto-evento');
+            const placeholder = document.getElementById('preview-placeholder');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Limite de 600px para a capa do evento (mantém a qualidade, mas reduz o tamanho do arquivo)
+                        const max_size = 600;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height && width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        } else if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Converte a imagem comprimida para base64 com 70% de qualidade
+                        window.fotoBase64Atual = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        preview.src = window.fotoBase64Atual;
+                        preview.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    }
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                window.fotoBase64Atual = "";
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+        // Banco de Dados Oficial
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUTo0W0k31yBd8ORGKMzqJqv2ltLCwdEk",
+            authDomain: "site-renascer-eef39.firebaseapp.com",
+            projectId: "site-renascer-eef39",
+            storageBucket: "site-renascer-eef39.firebasestorage.app",
+            messagingSenderId: "1043023040737",
+            appId: "1:1043023040737:web:a6b4192f0e99c0487d67a0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variáveis de controle globais
+        window.eventosCadastrados = [];
+        window.eventosAtuais = {}; 
+        window.eventoEditandoId = null;
+        window.filtroAtual = 'semana'; 
+
+        // ==========================================
+        // NOVA FUNÇÃO: DELETAR EVENTOS PASSADOS SOZINHO
+        // ==========================================
+        async function limparEventosExpirados() {
+            const dataHojeObj = new Date();
+            const dataHojeStr = dataHojeObj.toISOString().split('T')[0]; // Pega YYYY-MM-DD de hoje
+
+            try {
+                const snapshot = await getDocs(collection(db, "agenda_eventos"));
+                const promessasDeletar = [];
+
+                snapshot.forEach((documento) => {
+                    const data = documento.data();
+                    // Se o evento for mais velho que o dia de hoje, adiciona na lista para apagar
+                    if (data.data_evento && data.data_evento < dataHojeStr) {
+                        promessasDeletar.push(deleteDoc(doc(db, "agenda_eventos", documento.id)));
+                    }
+                });
+
+                // Se encontrou algum evento antigo, exclui tudo de uma vez
+                if (promessasDeletar.length > 0) {
+                    await Promise.all(promessasDeletar);
+                    console.log(`Sucesso: ${promessasDeletar.length} eventos antigos deletados automaticamente.`);
+                }
+            } catch (erro) {
+                console.error("Erro na limpeza automática:", erro);
+            }
+        }
+
+        // ==========================================
+        // 1. SISTEMA DE FILTRO INTELIGENTE
+        // ==========================================
+        window.mudarFiltro = function(filtro) {
+            window.filtroAtual = filtro;
+            
+            const classeAtiva = "px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition ";
+            const classeInativa = "px-5 py-2.5 rounded-xl font-bold text-sm bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 transition";
+            
+            document.getElementById('btn-semana').className = filtro === 'semana' ? classeAtiva + "bg-green-600 text-white" : classeInativa;
+            document.getElementById('btn-ativos').className = filtro === 'ativos' ? classeAtiva + "bg-blue-600 text-white" : classeInativa;
+
+            const titulos = {
+                'semana': 'Eventos desta Semana',
+                'ativos': 'Todos os Eventos Futuros'
+            };
+            document.getElementById('titulo-tabela').innerText = titulos[filtro];
+
+            renderizarTabela();
+        }
+
+        function renderizarTabela() {
+            const body = document.getElementById('table-body');
+            const mensagemVazia = document.getElementById('mensagem-vazia');
+            body.innerHTML = '';
+            
+            const dataHojeObj = new Date();
+            const dataHojeStr = dataHojeObj.toISOString().split('T')[0]; 
+            
+            const dataLimiteObj = new Date();
+            dataLimiteObj.setDate(dataLimiteObj.getDate() + 7);
+            const dataLimiteStr = dataLimiteObj.toISOString().split('T')[0];
+
+            let contadorEventos = 0;
+
+            window.eventosCadastrados.forEach((eventoObj) => {
+                const docId = eventoObj.id;
+                const data = eventoObj.data;
+                
+                const isEstaSemana = data.data_evento >= dataHojeStr && data.data_evento <= dataLimiteStr;
+
+                // REGRAS DO FILTRO
+                if (window.filtroAtual === 'semana' && !isEstaSemana) return; 
+                
+                const badgeClass = "bg-green-100 text-green-700";
+                const badgeTexto = "🟢 NO PRAZO";
+                const rowOpacidade = "hover:bg-gray-50";
+
+                const imagem = data.imagem_url && data.imagem_url !== "" && data.imagem_url !== "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    ? `<img src="${data.imagem_url}" class="w-16 h-12 rounded-lg object-cover border border-gray-200 shadow-sm shrink-0">`
+                    : `<div class="w-16 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center font-bold text-xl shrink-0">📅</div>`;
+
+                body.innerHTML += `
+                <tr class="transition border-b border-gray-50 ${rowOpacidade}">
+                    <td class="p-4 flex items-center gap-4">
+                        ${imagem}
+                        <div>
+                            <div class="font-bold text-gray-900">${data.titulo}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="${badgeClass} px-2 py-0.5 rounded text-[9px] font-bold tracking-widest">${badgeTexto}</span>
+                                <span class="text-xs text-green-600 font-medium">${data.data_texto}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 hidden md:table-cell">
+                        <div class="text-xs text-gray-700"><strong class="text-gray-900">Hora:</strong> ${data.horario}</div>
+                        <div class="text-[10px] text-gray-500 mt-1 line-clamp-1"><strong class="text-gray-900">Local:</strong> ${data.local}</div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex justify-center gap-2">
+                            <button onclick="editarEvento('${docId}')" class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-yellow-100 transition shadow-sm" title="Editar Evento">✏️ Editar</button>
+                            <button onclick="excluirEvento('${docId}')" class="bg-red-50 text-red-700 border border-red-200 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition shadow-sm" title="Apagar Definitivamente">🗑️</button>
+                        </div>
+                    </td>
+                </tr>`;
+                
+                contadorEventos++;
+            });
+
+            document.getElementById('count-badge').innerText = `${contadorEventos} eventos`;
+            
+            if(contadorEventos === 0) {
+                mensagemVazia.classList.remove('hidden');
+            } else {
+                mensagemVazia.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // INICIAR: LIMPAR PRIMEIRO, DEPOIS BUSCAR
+        // ==========================================
+        async function iniciarAgenda() {
+            await limparEventosExpirados();
+
+            onSnapshot(query(collection(db, "agenda_eventos"), orderBy('data_evento')), (snapshot) => {
+                const loading = document.getElementById('loading');
+                if(loading) loading.style.display = 'none';
+
+                window.eventosCadastrados = [];
+                window.eventosAtuais = {};
+
+                snapshot.forEach((documento) => {
+                    window.eventosCadastrados.push({ id: documento.id, data: documento.data() });
+                    window.eventosAtuais[documento.id] = documento.data();
+                });
+
+                renderizarTabela();
+            });
+        }
+
+        iniciarAgenda();
+
+        // ==========================================
+        // 2. EXCLUIR EVENTO MANUALMENTE
+        // ==========================================
+        window.excluirEvento = function(id) {
+            const evento = window.eventosAtuais[id];
+            if(!evento) return;
+
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: `Deseja excluir permanentemente o evento "${evento.titulo}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await deleteDoc(doc(db, "agenda_eventos", id));
+                        Swal.fire({title: 'Excluído!', text:'O evento foi removido da agenda.', icon:'success', timer:2000, showConfirmButton:false});
+                    } catch (error) {
+                        console.error("Erro ao excluir:", error);
+                        Swal.fire('Erro!', 'Não foi possível excluir o evento.', 'error');
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. EDITAR EVENTO (Preencher o formulário)
+        // ==========================================
+        window.editarEvento = function(id) {
+            const evento = window.eventosAtuais[id];
+            if(!evento) return;
+
+            window.eventoEditandoId = id; 
+            
+            document.getElementById('titulo-form').innerText = "Editando: " + evento.titulo;
+            document.getElementById('cabecalho-form').classList.replace('bg-green-50', 'bg-yellow-50');
+            document.getElementById('btn-submit').innerText = "Atualizar Evento";
+            document.getElementById('btn-submit').classList.replace('bg-green-600', 'bg-yellow-600');
+            document.getElementById('btn-submit').classList.replace('hover:bg-green-700', 'hover:bg-yellow-700');
+            document.getElementById('btn-cancelar').classList.remove('hidden');
+
+            document.getElementById('evento_titulo').value = evento.titulo || '';
+            document.getElementById('evento_data_texto').value = evento.data_texto || '';
+            document.getElementById('evento_data_real').value = evento.data_evento || '';
+            document.getElementById('evento_horario').value = evento.horario || '';
+            document.getElementById('evento_local').value = evento.local || '';
+            document.getElementById('evento_descricao').value = evento.descricao || '';
+            
+            // PREENCHENDO A FOTO AO EDITAR
+            const preview = document.getElementById('preview-foto-evento');
+            const placeholder = document.getElementById('preview-placeholder');
+            
+            // Verifica se tem foto customizada ou se era a padrão do Unsplash
+            const fotoSalva = evento.imagem_url !== "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" ? evento.imagem_url : '';
+            
+            window.fotoBase64Atual = fotoSalva;
+            
+            if(window.fotoBase64Atual) {
+                preview.src = window.fotoBase64Atual;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+            
+            document.getElementById('evento_foto_file').value = ""; // Limpa input de arquivo
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.cancelarEdicao = function() {
+            window.eventoEditandoId = null;
+            
+            document.getElementById('titulo-form').innerText = "Publicar Novo Evento";
+            document.getElementById('cabecalho-form').classList.replace('bg-yellow-50', 'bg-green-50');
+            document.getElementById('btn-submit').innerText = "Publicar Evento";
+            document.getElementById('btn-submit').classList.replace('bg-yellow-600', 'bg-green-600');
+            document.getElementById('btn-submit').classList.replace('hover:bg-yellow-700', 'hover:bg-green-700');
+            document.getElementById('btn-cancelar').classList.add('hidden');
+            
+            document.getElementById('form-admin-evento').reset();
+            
+            // Limpa o preview da foto
+            window.fotoBase64Atual = "";
+            document.getElementById('evento_foto_file').value = '';
+            document.getElementById('preview-foto-evento').classList.add('hidden');
+            document.getElementById('preview-placeholder').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 4. SALVAR (Cadastrar Novo ou Atualizar Existente)
+        // ==========================================
+        document.getElementById('form-admin-evento').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true; 
+            btn.innerText = "Gravando...";
+            
+            const dados = {
+                titulo: document.getElementById('evento_titulo').value,
+                data_texto: document.getElementById('evento_data_texto').value,
+                data_evento: document.getElementById('evento_data_real').value,
+                horario: document.getElementById('evento_horario').value,
+                local: document.getElementById('evento_local').value,
+                // Salva a base64, ou usa uma imagem neutra padrão caso fique vazio
+                imagem_url: window.fotoBase64Atual || "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                descricao: document.getElementById('evento_descricao').value
+            };
+
+            try {
+                if (window.eventoEditandoId) {
+                    dados.atualizado_em = new Date().toISOString();
+                    await updateDoc(doc(db, "agenda_eventos", window.eventoEditandoId), dados);
+                    Swal.fire({ title: 'Sucesso!', text: 'O Evento foi atualizado.', icon: 'success', timer: 2000, showConfirmButton: false });
+                } else {
+                    dados.criado_em = new Date().toISOString();
+                    await addDoc(collection(db, "agenda_eventos"), dados);
+                    Swal.fire({ title: 'Sucesso!', text: 'Novo evento publicado no site!', icon: 'success', timer: 2000, showConfirmButton: false });
+                }
+                cancelarEdicao();
+            } catch (error) { 
+                console.error(error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao gravar o evento.', 'error');
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = window.eventoEditandoId ? "Atualizar Evento" : "Publicar Evento"; 
+            }
+        });
+    </script>
+</body>
+</html>

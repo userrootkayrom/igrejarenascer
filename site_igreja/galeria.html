@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de Fotos - Igreja Renascer</title>
+    <link rel="icon" type="image/x-icon" href="/img/logo_branca.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased flex flex-col min-h-screen transition-colors duration-300">
+
+    <header class="bg-white dark:bg-gray-900 shadow-sm dark:shadow-none dark:border-b dark:border-gray-800 fixed w-full z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="/index.html" class="flex items-center gap-3">
+                        <!-- Logo Modo Claro -->
+                        <img src="/img/logo.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto block dark:hidden">
+                        <!-- Logo Modo Escuro (Branca) -->
+                        <img src="/img/logo_branca.png" alt="Igreja Renascer" class="h-10 sm:h-12 w-auto hidden dark:block">
+                        
+                        <span class="font-bold text-xl sm:text-2xl tracking-tighter text-gray-900 dark:text-white">
+                            IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span>
+                        </span>
+                    </a>
+                </div>
+   
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Início</a>
+                    <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Quem Somos</a>
+                    <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Programação</a>
+                    <a href="/site_igreja/galeria.html" class="text-green-600 dark:text-green-500 font-semibold border-b-2 border-green-600 dark:border-green-500 pb-1">Galeria</a>
+                    <a href="/site_igreja/generosidade.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium transition">Contribua</a>
+                </nav>
+
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    
+                    <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+
+                    <div class="hidden md:block">
+                        <a href="/login/index.html" class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Login</a>
+                    </div>
+
+                    <div class="md:hidden flex items-center">
+                        <button id="btn-menu" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 focus:outline-none p-2">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>  
+
+        <div id="menu-mobile" class="hidden md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-lg absolute w-full left-0 top-20 z-40 flex flex-col py-4 px-6 space-y-4">
+            <a href="/index.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Início</a>
+            <a href="/site_igreja/quem-somos.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Quem Somos</a>
+            <a href="/site_igreja/programacao.html" class="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500 font-medium text-lg transition">Programação</a>
+            <a href="/site_igreja/galeria.html" class="text-green-600 dark:text-green-500 font-medium text-lg transition">Galeria</a>
+            <div class="pt-2">
+                <a href="/site_igreja/generosidade.html" class="inline-block bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition shadow-lg">Contribua</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Imagem de Fundo Fixa (Parallax effect e base para o Glassmorphism) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <img src="/img/midia.png" alt="Galeria" class="w-full h-full object-cover">
+        <!-- O Gradiente dá destaque ao texto e funde a imagem -->
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/70 to-gray-900/95"></div>
+    </div>
+
+    <!-- 2. Conteúdo Principal (Glassmorphism) -->
+    <main class="flex-grow relative z-10 pt-32 pb-24 min-h-screen">
+        
+        <!-- Hero Interno -->
+        <div class="max-w-4xl mx-auto text-center px-4 mb-16 pt-10">
+            <span class="text-green-400 font-bold tracking-[0.3em] uppercase text-sm mb-4 block drop-shadow-md">Memórias & Momentos</span>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 mb-6 tracking-tight drop-shadow-sm">
+                Galeria de Fotos
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-200 mb-10 font-light tracking-wide drop-shadow max-w-2xl mx-auto">
+                Relembre os momentos marcantes de adoração, comunhão e celebração da nossa família de fé.
+            </p>
+        </div>
+
+        <!-- Bloco Principal CTA (Drive) -->
+        <section class="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full mb-20">
+            <div class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 md:p-12 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-center relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none"></div>
+                
+                <div class="relative z-10 w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-inner text-4xl">
+                    <span class="drop-shadow-md">📸</span>
+                </div>
+                
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-sm relative z-10">Álbum do Último Culto de Celebração</h2>
+                <p class="text-gray-300 mb-8 max-w-2xl mx-auto font-light leading-relaxed tracking-wide relative z-10">
+                    Todas as fotos do nosso último encontro de domingo já estão disponíveis no nosso drive público externo. Clique no botão abaixo para visualizar ou fazer download.
+                </p>
+                
+                <a href="https://drive.google.com/drive/folders/1WiY-8cR9RS2scl9oM44BQvUl2ilgqYat" target="_blank" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-green-600/80 backdrop-blur-md border border-green-500/50 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-green-500 transition-all duration-300 shadow-[0_4px_15px_0_rgba(22,163,74,0.4)] relative z-10">
+                    Ver Álbum Completo de Fotos
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- Categorias de Fotos -->
+        <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-10 border-t border-white/10">
+            <div class="text-center md:text-left mb-12">
+                <h3 class="text-3xl font-bold text-white drop-shadow-sm">Nossas Celebrações</h3>
+                <p class="text-gray-300 font-light mt-2 tracking-wide">Registros de adoração, batismos, pequenos grupos e ações sociais.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all duration-500 hover:-translate-y-2 hover:bg-white/20">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <div class="p-6 relative z-10 -mt-6">
+                        <h4 class="font-bold text-xl text-white mb-2 drop-shadow-sm">Cultos de Domingo</h4>
+                        <p class="text-sm text-gray-300 font-light leading-relaxed">Momentos marcantes da palavra e do louvor congregacional.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all duration-500 hover:-translate-y-2 hover:bg-white/20">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1519751138087-5bf79df62d5b?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <div class="p-6 relative z-10 -mt-6">
+                        <h4 class="font-bold text-xl text-white mb-2 drop-shadow-sm">Comunhão e Grupos</h4>
+                        <p class="text-sm text-gray-300 font-light leading-relaxed">Registros dos nossos Grupos de Mesa e conexões semanais.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all duration-500 hover:-translate-y-2 hover:bg-white/20">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                    </div>
+                    <div class="p-6 relative z-10 -mt-6">
+                        <h4 class="font-bold text-xl text-white mb-2 drop-shadow-sm">Ministérios e Eventos</h4>
+                        <p class="text-sm text-gray-300 font-light leading-relaxed">Batismos, conferências e atividades de capacitação.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 dark:bg-black text-white py-16 relative z-10 border-t border-white/10 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+               <a href="/index.html" class="font-bold text-2xl tracking-tighter text-white">IGREJA <span class="text-green-600 dark:text-green-500">RENASCER</span></a>
+                <p class="mt-4 text-gray-400">NÓS SOMOS FAMÍLIA! <br/> UM LUGAR PARA VOCÊ RENASCER!</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Contatos</h4>
+                <div class="space-y-4">
+                    <p><a href="https://maps.app.goo.gl/Tsh1XxxPJbQxeLjg8" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Av. São João, 805 - Capim Branco II</a></p>
+                    <p><a href="https://whatsa.me/5538999956975" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Contato: (38) 99956-9758</a></p>
+                    <p><a href="https://www.instagram.com/igrejarenascerunai/" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400">Instagram: @igrejarenascerunai</a></p>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Fique por dentro</h4>
+                <form id="form-newsletter" class="flex gap-2">
+                    <input type="email" placeholder="Seu melhor e-mail" class="w-full px-4 py-2 rounded-lg text-gray-900 dark:text-white dark:bg-gray-800 dark:border dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    <button type="submit" class="bg-green-600 px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition">Assinar</button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+            © 2026 Igreja Renascer <br/> Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <script>
+        // Lógica do Menu Mobile
+        const btnMenu = document.getElementById('btn-menu');
+        const menuMobile = document.getElementById('menu-mobile');
+        btnMenu.addEventListener('click', () => { menuMobile.classList.toggle('hidden'); });
+
+        // Lógica do Theme Toggle (Claro / Escuro)
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        var themeToggleBtn = document.getElementById('theme-toggle');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

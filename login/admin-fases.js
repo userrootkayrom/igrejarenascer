@@ -4,9 +4,11 @@ const config = window.SUPABASE_CONFIG;
 if (!config?.url || !config?.anonKey || config.url.includes("seu-projeto")) {
   throw new Error("Configure supabase-config.js antes de abrir o painel.");
 }
-const supabase = createClient(config.url, config.anonKey);
+const supabase = window.__supabaseClient || createClient(config.url, config.anonKey);
+window.__supabaseClient = supabase;
 const phase = document.body.dataset.phase;
 const SUPERADMIN_EMAIL = "admin@renascer.com";
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 const phases = {
   "1": {
     permission: "fase1",
@@ -58,7 +60,11 @@ function notify(message, error = false) {
 }
 
 function canAccess(profile) {
-  if (profile?.role === "superadmin" || user?.email?.toLowerCase() === SUPERADMIN_EMAIL) return true;
+  if (
+    profile?.role === "superadmin"
+    || normalizeEmail(user?.email) === SUPERADMIN_EMAIL
+    || normalizeEmail(profile?.email) === SUPERADMIN_EMAIL
+  ) return true;
   if (profile?.permissions?.[definition.permission] || profile?.permissions?.[`fase${phase}`]) return true;
   if (phase === "1") return ["membros", "eventos", "respostas"].some((permission) => profile?.permissions?.[permission] === true);
   return false;
@@ -170,17 +176,25 @@ function renderModules() {
 }
 
 async function init() {
-  const { data: sessionData } = await supabase.auth.getSession();
-  user = sessionData.session?.user;
+  let session = null;
+  for (let attempt = 0; attempt < 3 && !session; attempt += 1) {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    session = data.session;
+    if (!session && attempt < 2) await new Promise((resolve) => setTimeout(resolve, 400));
+  }
+  user = session?.user;
   if (!user) return;
+  const isSuperadmin = normalizeEmail(user.email) === SUPERADMIN_EMAIL;
   const { data: profileById, error: idError } = await supabase.from("admin_profiles").select("*").eq("id", user.id).maybeSingle();
   const { data: profileByEmail, error: emailError } = profileById || !user.email
     ? { data: null, error: null }
-    : await supabase.from("admin_profiles").select("*").eq("email", user.email.toLowerCase()).maybeSingle();
+    : await supabase.from("admin_profiles").select("*").ilike("email", normalizeEmail(user.email)).maybeSingle();
   const profile = profileById || profileByEmail;
   const error = idError || emailError;
-  if (error || !canAccess(profile)) return window.location.href = "/login/admin-dashboard.html";
-  $("#user").textContent = profile.name || user.email;
+  if (error && !isSuperadmin) return window.location.href = "/login/admin-dashboard.html";
+  if (!isSuperadmin && !canAccess(profile)) return window.location.href = "/login/admin-dashboard.html";
+  $("#user").textContent = profile?.name || user.email;
   $("#title").textContent = definition.title;
   $("#description").textContent = definition.description;
   $("#logout").addEventListener("click", async () => { await supabase.auth.signOut(); window.location.href = "/login/index.html"; });

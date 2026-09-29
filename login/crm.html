@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRM Igreja Renascer</title>
+  <script src="/supabase-config.js"></script>
+  <script type="module" src="/login/crm.js"></script>
+  <style>
+    :root { --green:#16a34a; --ink:#17211b; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f1f5f9; font:14px Inter, system-ui, -apple-system, sans-serif; }
+    button,input,select,textarea { font:inherit; }
+    button { cursor:pointer; }
+    .shell { display:grid; min-height:100vh; grid-template-columns:260px 1fr; }
+    aside { background:#102018; color:#fff; padding:24px 16px; display:flex; flex-direction:column; gap:24px; }
+    .brand { display:flex; align-items:center; gap:10px; padding:4px 10px 16px; border-bottom:1px solid #284234; }
+    .brand img { width:40px; height:40px; object-fit:contain; background:#fff; border-radius:10px; padding:5px; }
+    .brand strong { display:block; letter-spacing:.04em; } .brand small { color:#9bc6a7; }
+    nav { display:grid; gap:4px; } nav button { color:#cde3d2; background:transparent; border:0; border-radius:10px; padding:11px 12px; text-align:left; }
+    nav button:hover, nav button.active { background:#1e6a38; color:#fff; }
+    .userbox { margin-top:auto; border-top:1px solid #284234; padding:16px 10px 0; }
+    .userbox strong { display:block; } .userbox small { color:#a8c8af; display:block; margin:4px 0 12px; }
+    .logout { width:100%; color:#fecaca; background:transparent; border:1px solid #6b2d2d; border-radius:9px; padding:9px; }
+    main { min-width:0; } header { height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 34px; background:#fff; border-bottom:1px solid var(--line); }
+    header h1 { margin:0; font-size:22px; } header p { margin:3px 0 0; color:var(--muted); }
+    .content { padding:30px; max-width:1500px; margin:auto; } .hidden { display:none !important; }
+    .cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
+    .card,.panel { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 3px 15px #0f172a08; }
+    .card { padding:20px; } .card span { color:var(--muted); font-size:12px; } .card strong { display:block; font-size:29px; margin-top:8px; }
+    .panel { padding:22px; } .panel-head { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:18px; }
+    .panel h2 { margin:0; font-size:20px; } .panel-head p { margin:4px 0 0; color:var(--muted); }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; } input,select,textarea { border:1px solid var(--line); border-radius:9px; padding:10px 11px; width:100%; background:#fff; } textarea { min-height:92px; resize:vertical; }
+    .btn { border:0; border-radius:9px; padding:10px 14px; font-weight:700; } .btn-primary { background:var(--green); color:#fff; } .btn-muted { background:#e2e8f0; color:#334155; } .btn-danger { background:#fee2e2; color:#b91c1c; }
+    .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; background:var(--soft); padding:16px; border-radius:12px; margin-bottom:18px; } .form .wide { grid-column:1/-1; } label { display:grid; gap:6px; font-weight:700; font-size:12px; color:#475569; }
+    .table-wrap { overflow:auto; } table { width:100%; border-collapse:collapse; min-width:620px; } th,td { text-align:left; padding:13px 10px; border-bottom:1px solid #eef2f7; vertical-align:top; } th { color:#64748b; font-size:12px; text-transform:uppercase; letter-spacing:.05em; } td.actions { white-space:nowrap; text-align:right; } td.actions button { margin-left:6px; }
+    .empty { text-align:center; padding:38px 10px; color:var(--muted); } .notice { position:fixed; right:22px; bottom:22px; max-width:360px; padding:14px 17px; border-radius:11px; color:#fff; background:#17211b; box-shadow:0 10px 30px #0003; z-index:10; } .notice.error { background:#b91c1c; }
+    @media (max-width:900px) { .shell { grid-template-columns:1fr; } aside { position:static; padding:14px; } nav { grid-template-columns:repeat(3,1fr); } .userbox { display:none; } header { padding:0 18px; } .content { padding:18px; } .cards { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:560px) { nav { grid-template-columns:repeat(2,1fr); } .cards { grid-template-columns:1fr 1fr; gap:10px; } .card { padding:14px; } .form { grid-template-columns:1fr; } .form .wide { grid-column:auto; } }
+  </style>
+</head>
+<body>
+  <div id="loading" class="content">Validando sessão...</div>
+  <div id="app" class="shell hidden">
+    <aside>
+      <div class="brand"><img src="/img/logo.png" alt=""><div><strong>CRM RENASCER</strong><small>Gestão da igreja</small></div></div>
+      <nav id="module-nav"></nav>
+      <div class="userbox"><strong id="user-name">Administrador</strong><small id="user-email"></small><button id="logout" class="logout">Sair do sistema</button></div>
+    </aside>
+    <main>
+      <header><div><h1 id="page-title">Visão geral</h1><p id="page-subtitle">Acompanhe os principais indicadores da comunidade.</p></div><button id="refresh" class="btn btn-muted">Atualizar</button></header>
+      <div class="content"><section id="dashboard"></section><section id="module-view" class="hidden"></section></div>
+    </main>
+  </div>
+  <div id="notice" class="notice hidden"></div>
+</body>
+</html>

@@ -33,7 +33,7 @@ export function initAdminModules({ profile, user, notify }) {
   const visible = MODULES.filter((module) => hasPermission(profile, module.key) && (!module.pastorOnly || isPastor(profile)));
   root.innerHTML = visible.length ? visible.map((module) => `
     <article data-admin-module="${module.key}" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="mb-4 flex items-center justify-between gap-3"><div><h3 class="font-bold">${module.label}</h3><p class="text-xs text-slate-400">${module.table}</p></div><button data-refresh type="button" class="text-xs font-bold text-green-700">Atualizar</button></div>
+      <div class="mb-4 flex items-center justify-between gap-3"><div><h3 class="font-bold">${module.label}</h3><p class="text-xs text-slate-400">${module.table}</p></div></div>
       <form data-form class="mb-4 grid gap-3 rounded-xl bg-slate-50 p-4 sm:grid-cols-2">${module.fields.map((field) => input(field)).join("")}<div class="flex gap-2 sm:col-span-2"><button data-submit class="rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white">Adicionar</button><button data-cancel type="button" hidden class="rounded-xl border px-4 py-2 text-sm font-bold">Cancelar</button></div></form>
       <ul data-rows class="divide-y divide-slate-100"></ul>
     </article>`).join("") : `<div class="rounded-2xl border border-dashed border-slate-300 p-8 text-sm text-slate-500">Nenhum módulo liberado para este usuário.</div>`;
@@ -69,7 +69,6 @@ export function initAdminModules({ profile, user, notify }) {
   visible.forEach((module) => {
     const container = card(module);
     const form = container.querySelector("[data-form]");
-    container.querySelector("[data-refresh]").addEventListener("click", () => load(module));
     container.querySelector("[data-cancel]").addEventListener("click", () => { form.reset(); state.delete(module.key); form.querySelector("[data-submit]").textContent = "Adicionar"; form.querySelector("[data-cancel]").hidden = true; });
     form.addEventListener("submit", async (event) => {
       event.preventDefault();

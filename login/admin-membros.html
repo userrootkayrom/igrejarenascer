@@ -883,9 +883,12 @@
             btn.innerText = "Gravando Ficha... ⏳";
 
             try {
+                const rawBase64 = typeof window.fotoBase64Atual === 'string' ? window.fotoBase64Atual : '';
+                // Apenas grava a foto inline se for pequena (<250KB). Maiores devem subir via Storage.
+                const fotoBase64 = rawBase64.length > 250 * 1024 ? '' : rawBase64;
                 const dados = {
                     nome: document.getElementById('membro_nome').value,
-                    foto_base64: window.fotoBase64Atual, // <--- SALVANDO O TEXTO DA FOTO
+                    foto_base64: fotoBase64,
                     status: document.getElementById('membro_status').value,
                     data_nascimento: document.getElementById('membro_nascimento').value,
                     genero: document.getElementById('membro_genero').value,
@@ -893,13 +896,11 @@
                     conjuge: document.getElementById('membro_conjuge').value,
                     filhos: document.getElementById('membro_filhos').value,
                     profissao: document.getElementById('membro_profissao').value,
-                    
                     telefone: document.getElementById('membro_telefone').value,
                     email: document.getElementById('membro_email').value,
                     endereco: document.getElementById('membro_endereco').value,
                     bairro: document.getElementById('membro_bairro').value,
                     cidade: document.getElementById('membro_cidade').value,
-                    
                     data_conversao: document.getElementById('membro_data_conversao').value,
                     batizado: document.getElementById('membro_batizado').value,
                     detalhes_batismo: document.getElementById('membro_detalhes_batismo').value,
@@ -908,10 +909,10 @@
                     ministerio_participou: document.getElementById('membro_ministerio_participou').value,
                     ministerio_deseja: document.getElementById('membro_ministerio_deseja').value,
                     dons: document.getElementById('membro_dons').value,
-                    
                     necessidade_especial: document.getElementById('membro_necessidade_especial').value,
                     curso_teologico: document.getElementById('membro_curso_teologico').value,
-                    observacoes: document.getElementById('membro_obs').value
+                    observacoes: document.getElementById('membro_obs').value,
+                    atualizado_em: new Date().toISOString()
                 };
 
                 if (window.membroEditandoId) {
@@ -923,10 +924,16 @@
                     Swal.fire({ title: 'Sucesso!', text: 'Membro cadastrado com sucesso!', icon: 'success', timer: 2000, showConfirmButton: false });
                 }
                 cancelarEdicao();
-                
+                carregarMembros();
             } catch (err) {
                 console.error("Erro ao salvar:", err);
-                Swal.fire('Erro!', 'Não foi possível salvar no Banco de Dados.', 'error');
+                console.error("Stack:", err?.stack);
+                Swal.fire({
+                    title: 'Não foi possível salvar',
+                    html: `<div style="text-align:left;word-break:break-word;"><strong>Causa:</strong> ${String(err?.message || err || 'Erro desconhecido').replace(/</g,'&lt;')}<br><br><small style="color:#64748b;">Geralmente é RLS bloqueando (policy faltando), tabela sem permissão, ou o campo foto_base64 muito grande.</small></div>`,
+                    icon: 'error',
+                    confirmButtonColor: '#16a34a'
+                });
             } finally {
                 btn.disabled = false;
                 btn.innerText = window.membroEditandoId ? "Atualizar Ficha" : "Finalizar Cadastro";

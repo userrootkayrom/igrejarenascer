@@ -52,10 +52,28 @@ function makeQuery(source) {
   return request;
 }
 
+function makeDoc(sourceName, row) {
+  const docId = row?.legacy_id || row?.id;
+  return {
+    id: docId,
+    _supabaseId: row?.id,
+    data: () => wrap(sourceName, row || {}),
+    exists: () => Boolean(row),
+  };
+}
+function makeSnapshot(source, rows) {
+  const docs = (rows || []).map((row) => makeDoc(source.name, row));
+  return {
+    size: docs.length,
+    docs,
+    empty: docs.length === 0,
+    forEach(callback) { docs.forEach((d) => callback(d)); },
+  };
+}
 export async function getDocs(source) {
   const { data, error } = await makeQuery(source).limit(1000);
   if (error) throw error;
-  return { size: data.length, docs: data.map((row) => ({ id: row.id, data: () => wrap(source.name, row) })) };
+  return makeSnapshot(source, data || []);
 }
 
 export async function getDoc(reference) {
@@ -64,26 +82,90 @@ export async function getDoc(reference) {
     ? await request.eq("id", reference.id).maybeSingle()
     : await request.or(`id.eq.${reference.id},legacy_id.eq.${reference.id}`).maybeSingle();
   if (error) throw error;
-  return { exists: () => Boolean(data), data: () => data ? wrap(reference.name, data) : undefined, id: reference.id };
+  if (!data) return { exists: () => false, data: () => undefined, id: reference.id };
+  const d = makeDoc(reference.name, data);
+  return { exists: () => true, data: d.data, id: d.id };
 }
 
 export async function addDoc(reference, value) {
   const table = tableFor(reference.name);
+  const safeData = sanitizeData(value || {});
+  const legacy_id = safeData.id || crypto.randomUUID();
+  const collection_name = collectionNameFor(reference.name);
+
+  let eventDate = safeData.event_date || safeData.data_evento
+    ? (safeData.event_date || new Date(
+        (safeData.data_evento || "2024-01-01") + "T" + (safeData.horario || safeData.hora || "00:00") + ":00"
+      ).toISOString())
+    : null;
+  if (eventDate && isNaN(new Date(eventDate).getTime())) eventDate = null;
+
   const row = table === "admin_profiles"
-    ? { email: value.email, name: value.nome || value.name || null, role: value.role || "admin", permissions: value.permissions || {}, photo_url: value.photoURL || null }
-    : { legacy_id: crypto.randomUUID(), data: value, status: value.status || "new", collection_name: reference.name, event_date: value.data_evento || null };
-  const { data, error } = await supabase.from(table).insert(row).select("id").single();
+    ? {
+        id: safeData.uid || safeData.id || reference.id || undefined,
+        email: safeData.email,
+        name: safeData.nome || safeData.name || null,
+        nomenclatura: safeData.nomenclatura || null,
+        role: safeData.role || "admin",
+        permissions: safeData.permissions || {},
+        photo_url: safeData.photoURL || safeData.photo_url || null,
+      }
+    : {
+        legacy_id,
+        data: safeData,
+        status: safeData.status || (table === "events" ? "published" : "new"),
+        collection_name,
+        event_date: eventDate,
+      };
+
+  const { data, error } = await supabase.from(table).insert(row).select("*").single();
   if (error) throw error;
-  return { id: data.id };
+  const d = makeDoc(reference.name, data);
+  return { id: d.id };
 }
 
 export async function setDoc(reference, value, options = {}) {
   const table = tableFor(reference.name);
-  const row = table === "admin_profiles"
-    ? { id: reference.id, email: value.email, name: value.nome || value.name || null, nomenclatura: value.nomenclatura || null, role: value.role || "admin", permissions: value.permissions || {}, photo_url: value.photoURL || null }
-    : { legacy_id: reference.id, data: value, status: value.status || null };
+  const safeData = sanitizeData(value || {});
+  const legacy_id = reference.id || safeData.id || crypto.randomUUID();
+  const collection_name = collectionNameFor(reference.name);
+
+  let eventDate = safeData.event_date || safeData.data_evento
+    ? (safeData.event_date || new Date(
+        (safeData.data_evento || "2024-01-01") + "T" + (safeData.horario || safeData.hora || "00:00") + ":00"
+      ).toISOString())
+    : null;
+  if (eventDate && isNaN(new Date(eventDate).getTime())) eventDate = null;
+
+  if (table === "admin_profiles") {
+    const payload = {
+      id: reference.id,
+      email: safeData.email || undefined,
+      name: safeData.nome || safeData.name || null,
+      nomenclatura: safeData.nomenclatura || null,
+      role: safeData.role || "admin",
+      permissions: safeData.permissions || {},
+      photo_url: safeData.photoURL || safeData.photo_url || null,
+    };
+    if (options.merge) {
+      const { error } = await supabase.from(table).update({
+        name: payload.name ?? undefined,
+        nomenclatura: payload.nomenclatura ?? undefined,
+        role: payload.role ?? undefined,
+        permissions: payload.permissions,
+        photo_url: payload.photo_url ?? undefined,
+      }).eq("id", reference.id);
+      if (error) throw error;
+      return;
+    }
+    const { error } = await supabase.from(table).upsert(payload, { onConflict: "id" });
+    if (error) throw error;
+    return;
+  }
+
+  const row = { legacy_id, data: safeData, status: safeData.status || null, collection_name, event_date: eventDate };
   const request = options.merge
-    ? supabase.from(table).upsert(row, { onConflict: table === "admin_profiles" ? "id" : "legacy_id" })
+    ? supabase.from(table).upsert(row, { onConflict: "legacy_id" })
     : supabase.from(table).upsert(row);
   const { error } = await request;
   if (error) throw error;
@@ -91,14 +173,40 @@ export async function setDoc(reference, value, options = {}) {
 
 export async function updateDoc(reference, value) {
   const table = tableFor(reference.name);
+  const safeValue = sanitizeData(value || {});
   const read = reference.name === "usuarios_admin"
     ? supabase.from(table).select("*").eq("id", reference.id).maybeSingle()
     : supabase.from(table).select("*").or(`id.eq.${reference.id},legacy_id.eq.${reference.id}`).maybeSingle();
   const { data: current, error: readError } = await read;
   if (readError) throw readError;
   if (!current) throw new Error(`Registro não encontrado: ${reference.id}`);
-  const merged = { ...(current.data || {}), ...value };
-  const { error } = await supabase.from(table).update({ data: merged, status: merged.status || current.status }).eq("id", current.id);
+
+  if (table === "admin_profiles") {
+    const payload = {};
+    if ("name" in safeValue || "nome" in safeValue) payload.name = safeValue.nome || safeValue.name;
+    if ("nomenclatura" in safeValue) payload.nomenclatura = safeValue.nomenclatura;
+    if ("role" in safeValue) payload.role = safeValue.role;
+    if ("permissions" in safeValue) payload.permissions = safeValue.permissions;
+    if ("photoURL" in safeValue || "photo_url" in safeValue) payload.photo_url = safeValue.photoURL || safeValue.photo_url;
+    const { error } = await supabase.from(table).update(payload).eq("id", current.id);
+    if (error) throw error;
+    return;
+  }
+
+  const merged = { ...(current.data || {}), ...safeValue };
+  const status = merged.status || safeValue.status || current.status;
+  const collection_name = collectionNameFor(reference.name);
+  const patch = { data: merged, status, collection_name };
+  if (table === "events") {
+    let eventDate = merged.event_date || merged.data_evento
+      ? (merged.event_date || new Date(
+          (merged.data_evento || "2024-01-01") + "T" + (merged.horario || merged.hora || "00:00") + ":00"
+        ).toISOString())
+      : current.event_date;
+    if (eventDate && isNaN(new Date(eventDate).getTime())) eventDate = current.event_date;
+    patch.event_date = eventDate;
+  }
+  const { error } = await supabase.from(table).update(patch).eq("id", current.id);
   if (error) throw error;
 }
 

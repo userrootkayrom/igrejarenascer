@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const config = window.SUPABASE_CONFIG;
 const mode = document.body.dataset.authGuard || "protected";
 const loginPath = "/login/index.html";
-const dashboardPath = "/login/admin-dashboard.html";
+const dashboardPath = "/login/crm.html";
 document.documentElement.style.visibility = "hidden";
 
 if (!config?.url || !config?.anonKey || config.url.includes("seu-projeto") || config.anonKey === "******" || config.anonKey.includes("sua_chave")) {

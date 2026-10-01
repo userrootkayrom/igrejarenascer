@@ -924,7 +924,6 @@
                     Swal.fire({ title: 'Sucesso!', text: 'Membro cadastrado com sucesso!', icon: 'success', timer: 2000, showConfirmButton: false });
                 }
                 cancelarEdicao();
-                carregarMembros();
             } catch (err) {
                 console.error("Erro ao salvar:", err);
                 console.error("Stack:", err?.stack);

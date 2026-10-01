@@ -993,9 +993,24 @@
     $("user-form-cancel").addEventListener("click", resetUserForm);
     $("profile-form").addEventListener("submit", async (event) => {
       event.preventDefault();
-      await updateProfile(currentUser, { displayName: $("profile-name-input").value });
-      await setDoc(doc(db, "usuarios_admin", currentUser.uid), { nome: $("profile-name-input").value, updatedAt: serverTimestamp() }, { merge: true });
-      notify("Perfil atualizado", "Seu nome foi atualizado.");
+      const name = $("profile-name-input").value.trim();
+      const submit = event.currentTarget.querySelector('button[type="submit"]');
+      submit.disabled = true;
+      try {
+        await setDoc(doc(db, "usuarios_admin", currentUser.id), { nome: name, updatedAt: serverTimestamp() }, { merge: true });
+        await updateProfile(currentUser, { displayName: name });
+        currentProfile.nome = name;
+        currentUser.user_metadata = { ...currentUser.user_metadata, display_name: name };
+        $("profile-name").textContent = name;
+        $("user-name").textContent = name;
+        $("welcome-name").textContent = name.split(" ")[0];
+        notify("Perfil atualizado", "Seu nome foi atualizado.");
+      } catch (error) {
+        console.error("Erro ao atualizar nome do perfil:", error);
+        notify("Não foi possível atualizar", error.message || "Verifique sua conexão e tente novamente.", "error");
+      } finally {
+        submit.disabled = false;
+      }
     });
     $("profile-photo-input").addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -1006,13 +1021,15 @@
         return;
       }
       try {
-        const fileRef = storageRef(storage, `usuarios_admin/${currentUser.uid}/perfil-${Date.now()}-${file.name}`);
+        const fileRef = storageRef(storage, `usuarios_admin/${currentUser.id}/perfil-${Date.now()}-${file.name}`);
         await uploadBytes(fileRef, file, { contentType: file.type });
         const photoURL = await getDownloadURL(fileRef);
         await updateProfile(currentUser, { photoURL });
-        await setDoc(doc(db, "usuarios_admin", currentUser.uid), { photoURL, updatedAt: serverTimestamp() }, { merge: true });
-        setAvatar($("avatar"), currentUser);
-        setAvatar($("profile-avatar"), currentUser);
+        await setDoc(doc(db, "usuarios_admin", currentUser.id), { photoURL, updatedAt: serverTimestamp() }, { merge: true });
+        currentUser.user_metadata = { ...currentUser.user_metadata, avatar_url: photoURL };
+        const profileUser = { ...currentUser, photoURL };
+        setAvatar($("avatar"), profileUser);
+        setAvatar($("profile-avatar"), profileUser);
         notify("Foto atualizada", "Sua foto de perfil foi salva.");
       } catch (error) {
         console.error("Erro ao atualizar foto:", error);

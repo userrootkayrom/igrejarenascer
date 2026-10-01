@@ -3,9 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CRM Igreja Renascer</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title>Painel Administrativo - Renascer</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="icon" type="image/x-icon" href="/img/logo_branca.png">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="/supabase-config.js"></script>
-  <script type="module" src="/login/crm.js"></script>
+  <script type="importmap">{"imports":{"@supabase/supabase-js":"https://esm.sh/@supabase/supabase-js@2"}}</script>
   <style>
     :root { --green:#16a34a; --ink:#17211b; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc; }
     * { box-sizing:border-box; }
@@ -14,44 +18,1249 @@
     button { cursor:pointer; }
     .shell { display:grid; min-height:100vh; grid-template-columns:260px 1fr; }
     aside { background:#102018; color:#fff; padding:24px 16px; display:flex; flex-direction:column; gap:24px; }
-    .brand { display:flex; align-items:center; gap:10px; padding:4px 10px 16px; border-bottom:1px solid #284234; }
+    .brand { display:flex; align-items:center; gap:10px; padding:4px 10px 16px; border-bottom:1px solid #284234; text-decoration:none; color:inherit; }
     .brand img { width:40px; height:40px; object-fit:contain; background:#fff; border-radius:10px; padding:5px; }
-    .brand strong { display:block; letter-spacing:.04em; } .brand small { color:#9bc6a7; }
-    nav { display:grid; gap:4px; } nav button { color:#cde3d2; background:transparent; border:0; border-radius:10px; padding:11px 12px; text-align:left; }
-    nav button:hover, nav button.active { background:#1e6a38; color:#fff; }
+    .brand strong { display:block; letter-spacing:.04em; color:#fff; } .brand small { color:#9bc6a7; }
+    nav { display:grid; gap:4px; }
+    nav a, nav button { color:#cde3d2; background:transparent; border:0; border-radius:10px; padding:11px 12px; text-align:left; text-decoration:none; display:flex; align-items:center; gap:10px; width:100%; }
+    nav a:hover, nav a.active, nav button:hover, nav button.active { background:#1e6a38; color:#fff; }
+    nav a span:first-child, nav button span:first-child { color:#4ade80; font-size:16px; }
     .userbox { margin-top:auto; border-top:1px solid #284234; padding:16px 10px 0; }
-    .userbox strong { display:block; } .userbox small { color:#a8c8af; display:block; margin:4px 0 12px; }
+    .userbox .userrow { display:flex; align-items:center; gap:10px; }
+    .avatar { width:40px; height:40px; border-radius:50%; background:#1e6a38; color:#fff; display:grid; place-items:center; font-weight:700; overflow:hidden; flex-shrink:0; }
+    .avatar img { width:100%; height:100%; object-fit:cover; }
+    .userbox strong { display:block; color:#fff; } .userbox small { color:#a8c8af; display:block; margin:4px 0 12px; }
     .logout { width:100%; color:#fecaca; background:transparent; border:1px solid #6b2d2d; border-radius:9px; padding:9px; }
-    main { min-width:0; } header { height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 34px; background:#fff; border-bottom:1px solid var(--line); }
-    header h1 { margin:0; font-size:22px; } header p { margin:3px 0 0; color:var(--muted); }
-    .content { padding:30px; max-width:1500px; margin:auto; } .hidden { display:none !important; }
+    .logout:hover { background:#3b1313; }
+    main { min-width:0; }
+    header { height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 34px; background:#fff; border-bottom:1px solid var(--line); }
+    header .head-left { min-width:0; }
+    header h1 { margin:0; font-size:22px; } header p { margin:3px 0 0; color:var(--muted); font-size:13px; }
+    header .head-right { display:flex; align-items:center; gap:10px; }
+    .head-right .tool-btn { width:38px; height:38px; border-radius:9px; border:1px solid var(--line); background:var(--soft); color:var(--muted); display:grid; place-items:center; }
+    .head-right .tool-btn:hover { background:var(--green); color:#fff; border-color:var(--green); }
+    .head-right .site-link { background:var(--green); color:#fff; border-radius:9px; padding:9px 14px; text-decoration:none; font-weight:700; }
+    .head-right .site-link:hover { background:#15803d; }
+    .content { padding:30px; max-width:1500px; margin:auto; }
+    .hidden { display:none !important; }
+    .section-head { margin-bottom:24px; }
+    .section-head h2 { margin:0; font-size:28px; font-weight:900; letter-spacing:-.01em; }
+    .section-head p { margin:8px 0 0; color:var(--muted); font-size:14px; }
+    .greet { margin-bottom:24px; }
+    .greet .today { color:var(--muted); font-size:13px; }
+    .greet h2 { margin:6px 0 4px; font-size:30px; font-weight:900; letter-spacing:-.01em; }
+    .greet p { color:var(--muted); margin:0; }
     .cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
-    .card,.panel { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 3px 15px #0f172a08; }
-    .card { padding:20px; } .card span { color:var(--muted); font-size:12px; } .card strong { display:block; font-size:29px; margin-top:8px; }
+    .card, .panel { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 3px 15px #0f172a08; }
+    .card { padding:20px; } .card .card-head { display:flex; justify-content:space-between; align-items:flex-start; }
+    .card .label { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .card strong { display:block; font-size:29px; margin-top:10px; }
+    .card .status { margin-top:10px; font-size:11px; font-weight:600; }
+    .card .status.green { color:var(--green); }
+    .card .icon-box { width:44px; height:44px; border-radius:10px; display:grid; place-items:center; font-size:20px; }
+    .icon-box.green { background:#dcfce7; color:#15803d; }
+    .icon-box.blue { background:#dbeafe; color:#1d4ed8; }
+    .icon-box.amber { background:#fef3c7; color:#b45309; }
+    .icon-box.rose { background:#ffe4e6; color:#be123c; }
+    .grid-2 { display:grid; grid-template-columns:1.65fr .8fr; gap:20px; }
     .panel { padding:22px; } .panel-head { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:18px; }
-    .panel h2 { margin:0; font-size:20px; } .panel-head p { margin:4px 0 0; color:var(--muted); }
-    .toolbar { display:flex; gap:10px; flex-wrap:wrap; } input,select,textarea { border:1px solid var(--line); border-radius:9px; padding:10px 11px; width:100%; background:#fff; } textarea { min-height:92px; resize:vertical; }
-    .btn { border:0; border-radius:9px; padding:10px 14px; font-weight:700; } .btn-primary { background:var(--green); color:#fff; } .btn-muted { background:#e2e8f0; color:#334155; } .btn-danger { background:#fee2e2; color:#b91c1c; }
-    .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; background:var(--soft); padding:16px; border-radius:12px; margin-bottom:18px; } .form .wide { grid-column:1/-1; } label { display:grid; gap:6px; font-weight:700; font-size:12px; color:#475569; }
-    .table-wrap { overflow:auto; } table { width:100%; border-collapse:collapse; min-width:620px; } th,td { text-align:left; padding:13px 10px; border-bottom:1px solid #eef2f7; vertical-align:top; } th { color:#64748b; font-size:12px; text-transform:uppercase; letter-spacing:.05em; } td.actions { white-space:nowrap; text-align:right; } td.actions button { margin-left:6px; }
-    .empty { text-align:center; padding:38px 10px; color:var(--muted); } .notice { position:fixed; right:22px; bottom:22px; max-width:360px; padding:14px 17px; border-radius:11px; color:#fff; background:#17211b; box-shadow:0 10px 30px #0003; z-index:10; } .notice.error { background:#b91c1c; }
-    @media (max-width:900px) { .shell { grid-template-columns:1fr; } aside { position:static; padding:14px; } nav { grid-template-columns:repeat(3,1fr); } .userbox { display:none; } header { padding:0 18px; } .content { padding:18px; } .cards { grid-template-columns:repeat(2,1fr); } }
-    @media (max-width:560px) { nav { grid-template-columns:repeat(2,1fr); } .cards { grid-template-columns:1fr 1fr; gap:10px; } .card { padding:14px; } .form { grid-template-columns:1fr; } .form .wide { grid-column:auto; } }
+    .panel-head h3 { margin:0; font-size:17px; font-weight:800; } .panel-head p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+    .badge { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:5px 11px; font-size:11px; font-weight:700; }
+    .badge.green { background:#dcfce7; color:#15803d; }
+    .badge .dot { width:7px; height:7px; border-radius:50%; background:var(--green); display:inline-block; }
+    .member-chart { background:linear-gradient(180deg,#cbd5d5 0%,#f8fafc 100%); position:relative; height:260px; overflow:hidden; border-radius:14px; padding:16px 16px 28px; }
+    .member-chart-bars { position:absolute; left:16px; right:16px; bottom:28px; top:16px; display:flex; align-items:flex-end; justify-content:space-around; gap:6px; }
+    .member-chart-bar { min-height:8px; transition:height .5s ease, opacity .2s ease; width:16px; border-radius:6px 6px 0 0; }
+    .member-chart-bar:hover { opacity:.8; }
+    .member-chart-labels { position:absolute; left:16px; right:16px; bottom:8px; display:flex; justify-content:space-around; gap:6px; font-size:10px; color:var(--muted); }
+    .chart-foot { display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-size:12px; color:var(--muted); }
+    .chart-foot strong { color:var(--green); font-size:14px; }
+    .quick-actions { margin-top:20px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .quick-btn { border:1px solid var(--line); background:var(--soft); padding:14px; border-radius:14px; text-align:left; transition:all .15s ease; }
+    .quick-btn:hover { border-color:#86efac; background:#f0fdf4; }
+    .quick-btn strong { display:block; font-size:14px; color:var(--ink); }
+    .quick-btn span { display:block; font-size:11px; color:var(--muted); margin-top:4px; }
+    .access-panel .mini-bars { display:flex; align-items:flex-end; justify-content:space-around; gap:6px; height:140px; margin-top:24px; }
+    .access-panel .mini-bars span { width:26px; border-radius:8px 8px 0 0; background:#bbf7d0; }
+    .access-panel .mini-bars span:nth-child(2) { background:#86efac; }
+    .access-panel .mini-bars span:nth-child(3) { background:#22c55e; }
+    .access-panel .mini-bars span:nth-child(4) { background:#4ade80; }
+    .tabs { display:flex; gap:6px; overflow-x:auto; background:#fff; border:1px solid var(--line); border-radius:14px; padding:6px; margin-bottom:20px; }
+    .tabs button { white-space:nowrap; border-radius:9px; padding:9px 14px; border:0; background:transparent; color:var(--muted); font-weight:600; font-size:13px; }
+    .tabs button:hover { background:var(--soft); color:var(--ink); }
+    .tabs button.active { background:var(--green); color:#fff; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; min-width:620px; }
+    th,td { text-align:left; padding:13px 12px; border-bottom:1px solid #eef2f7; vertical-align:top; }
+    th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; background:var(--soft); }
+    td.actions { white-space:nowrap; text-align:right; }
+    td.actions button, td .link-btn { background:transparent; border:0; padding:0; margin-left:10px; font-size:13px; font-weight:600; text-decoration:underline; cursor:pointer; }
+    .link-btn.green { color:#15803d; }
+    .link-btn.blue { color:#2563eb; }
+    .link-btn.red { color:#dc2626; }
+    .empty { text-align:center; padding:38px 10px; color:var(--muted); }
+    .tag { display:inline-block; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:700; margin-top:6px; }
+    .tag.amber { background:#fef3c7; color:#92400e; }
+    .tag.green { background:#dcfce7; color:#166534; }
+    .embed-frame { height:calc(100vh - 9rem); border:1px solid var(--line); border-radius:16px; background:#fff; width:100%; }
+    .modules-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+    .module-card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 3px 15px #0f172a08; }
+    .module-card .mod-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .module-card .mod-head strong { font-size:17px; }
+    .module-card .mod-head p { color:var(--muted); font-size:11px; margin:2px 0 0; }
+    .module-card .mod-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; background:var(--soft); padding:14px; border-radius:12px; margin-bottom:16px; }
+    .module-card .mod-form .wide { grid-column:1/-1; }
+    .label-grid { display:grid; gap:6px; font-weight:700; font-size:12px; color:#475569; }
+    input,select,textarea { border:1px solid var(--line); border-radius:9px; padding:10px 11px; width:100%; background:#fff; color:var(--ink); }
+    textarea { min-height:92px; resize:vertical; }
+    input:focus,select:focus,textarea:focus { outline:2px solid #bbf7d0; border-color:var(--green); }
+    .btn { border:0; border-radius:9px; padding:10px 14px; font-weight:700; font-size:13px; }
+    .btn-primary { background:var(--green); color:#fff; }
+    .btn-primary:hover { background:#15803d; }
+    .btn-muted { background:#e2e8f0; color:#334155; }
+    .btn-muted:hover { background:#cbd5e1; }
+    .btn-danger { background:#fee2e2; color:#b91c1c; }
+    .btn-danger:hover { background:#fecaca; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; }
+    .form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; background:var(--soft); padding:16px; border-radius:12px; margin-bottom:18px; }
+    .form .wide { grid-column:1/-1; }
+    label { display:grid; gap:6px; font-weight:700; font-size:12px; color:#475569; }
+    .notice { position:fixed; right:22px; bottom:22px; max-width:360px; padding:14px 17px; border-radius:11px; color:#fff; background:#17211b; box-shadow:0 10px 30px #0003; z-index:50; }
+    .notice.error { background:#b91c1c; }
+    .banner-warn { border:1px solid #fcd34d; background:#fffbeb; color:#92400e; padding:14px 16px; border-radius:12px; font-size:13px; margin-bottom:16px; }
+    .perm-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .perm-item { display:flex; align-items:center; gap:10px; border:1px solid var(--line); padding:11px; border-radius:11px; font-size:13px; }
+    .perm-item input { width:16px; height:16px; accent-color:var(--green); }
+    .users-grid { display:grid; gap:14px; margin-top:16px; }
+    .user-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; }
+    .user-card .row1 { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+    .user-card .row1 strong { font-size:15px; display:block; }
+    .user-card .row1 .email { color:var(--green); font-weight:600; font-size:13px; margin-top:3px; word-break:break-all; }
+    .user-card .row1 .idstr { color:var(--muted); font-size:11px; margin-top:6px; }
+    .tag-pill { display:inline-block; border-radius:999px; padding:4px 11px; font-size:11px; font-weight:700; }
+    .tag-pill.super { background:var(--green); color:#fff; }
+    .tag-pill.role { background:var(--soft); color:#475569; }
+    .tag-pill.perm { background:#dcfce7; color:#166534; margin:3px 4px 0 0; }
+    .profile-layout { display:grid; grid-template-columns:280px 1fr; gap:24px; }
+    .profile-side { background:#0f172a; color:#fff; border-radius:16px; padding:26px; text-align:center; }
+    .profile-side .big-avatar { width:96px; height:96px; border-radius:50%; background:var(--green); color:#052e16; margin:0 auto; display:grid; place-items:center; font-size:34px; font-weight:900; overflow:hidden; }
+    .profile-side .big-avatar img { width:100%; height:100%; object-fit:cover; }
+    .profile-side h3 { margin:16px 0 2px; }
+    .profile-side .pemail { color:#94a3b8; font-size:13px; }
+    .profile-side .photolbl { margin-top:20px; display:inline-block; background:var(--green); color:#052e16; border-radius:9px; padding:8px 14px; font-weight:700; font-size:13px; cursor:pointer; }
+    .profile-side .photolbl:hover { background:#4ade80; }
+    .profile-side .small-hint { color:#64748b; font-size:11px; margin-top:8px; }
+    .profile-forms { display:grid; gap:20px; }
+    .modal-backdrop { position:fixed; inset:0; z-index:60; background:rgba(2,6,23,.6); padding:16px; display:none; align-items:center; justify-content:center; }
+    .modal-backdrop.open { display:flex; }
+    .modal-box { background:#fff; border-radius:16px; padding:24px; width:100%; max-width:640px; max-height:90vh; overflow-y:auto; box-shadow:0 25px 50px rgba(0,0,0,.25); }
+    .modal-box.wide { max-width:520px; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .modal-head h2 { margin:0; font-size:22px; font-weight:900; }
+    .modal-head .close-x { background:transparent; border:0; font-size:28px; color:var(--muted); line-height:1; }
+    .modal-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .modal-form .wide { grid-column:1/-1; }
+    .modal-foot { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+
+    /* Dark mode overrides */
+    body.dark { background:#020617; color:#e2e8f0; }
+    body.dark header, body.dark .panel, body.dark .card, body.dark .module-card,
+    body.dark .user-card, body.dark .modal-box, body.dark .tabs, body.dark table,
+    body.dark .embed-frame { background:#0b1220; border-color:#1f2a44; }
+    body.dark .soft, body.dark .form, body.dark .mod-form, body.dark th,
+    body.dark .quick-btn, body.dark .perm-item, body.dark input, body.dark select, body.dark textarea { background:#0f1a2e !important; border-color:#1f2a44 !important; color:#e2e8f0; }
+    body.dark input, body.dark select, body.dark textarea { color:#e2e8f0; }
+    body.dark .muted, body.dark .section-head p, body.dark .greet p, body.dark .greet .today,
+    body.dark .card .label, body.dark .chart-foot, body.dark .panel-head p, body.dark .module-card .mod-head p,
+    body.dark .quick-btn span, body.dark .empty, body.dark th, body.dark .label-grid, body.dark label,
+    body.dark .user-card .row1 .idstr, body.dark .profile-side .pemail, body.dark .profile-side .small-hint,
+    body.dark header p, body.dark .card .status, body.dark .member-chart-labels { color:#94a3b8 !important; }
+    body.dark tr, body.dark td { border-color:#1f2a44; }
+    body.dark .btn-muted { background:#1e293b; color:#cbd5e1; }
+    body.dark .tag-pill.role { background:#1e293b; color:#cbd5e1; }
+    body.dark .quick-btn:hover { border-color:#16a34a; background:#0a1f12; }
+    body.dark .member-chart { background:linear-gradient(180deg,#1e293b 0%,#0b1220 100%); }
+    body.dark .banner-warn { background:#1c1917; border-color:#78350f; color:#fcd34d; }
+    body.dark .access-panel .mini-bars span { background:#14532d; }
+    body.dark .access-panel .mini-bars span:nth-child(2) { background:#166534; }
+    body.dark .access-panel .mini-bars span:nth-child(3) { background:#16a34a; }
+    body.dark .access-panel .mini-bars span:nth-child(4) { background:#22c55e; }
+    body.dark .icon-box.green { background:#052e16; color:#4ade80; }
+    body.dark .icon-box.blue { background:#172554; color:#60a5fa; }
+    body.dark .icon-box.amber { background:#451a03; color:#fbbf24; }
+    body.dark .icon-box.rose { background:#4c0519; color:#fb7185; }
+    body.dark .badge.green { background:#052e16; color:#4ade80; }
+    body.dark .tag.green { background:#052e16; color:#4ade80; }
+    body.dark .tag.amber { background:#451a03; color:#fbbf24; }
+    body.dark .tag-pill.perm { background:#052e16; color:#4ade80; }
+    body.dark .tag-pill.super { background:#16a34a; color:#fff; }
+    body.dark .tabs button { color:#94a3b8; }
+    body.dark .tabs button:hover { background:#0f1a2e; color:#e2e8f0; }
+
+    @media (max-width:900px) {
+      .shell { grid-template-columns:1fr; }
+      aside { position:static; padding:14px; }
+      nav { grid-template-columns:repeat(3,1fr); }
+      .userbox { display:none; }
+      header { padding:0 18px; }
+      .content { padding:18px; }
+      .cards { grid-template-columns:repeat(2,1fr); }
+      .grid-2 { grid-template-columns:1fr; }
+      .modules-grid { grid-template-columns:1fr; }
+      .profile-layout { grid-template-columns:1fr; }
+      .perm-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width:560px) {
+      nav { grid-template-columns:repeat(2,1fr); }
+      .cards { grid-template-columns:1fr 1fr; gap:10px; }
+      .card { padding:14px; }
+      .form, .modal-form, .mod-form { grid-template-columns:1fr; }
+      .form .wide, .modal-form .wide, .mod-form .wide { grid-column:auto; }
+      .quick-actions { grid-template-columns:1fr; }
+      .modules-grid { grid-template-columns:1fr; }
+      .perm-grid { grid-template-columns:1fr; }
+      .head-right .site-link span { display:none; }
+    }
   </style>
 </head>
-<body>
-  <div id="loading" class="content">Validando sessão...</div>
+<body data-auth-guard="protected">
+  <div id="loading" class="content">Carregando painel...</div>
+
   <div id="app" class="shell hidden">
     <aside>
-      <div class="brand"><img src="/img/logo.png" alt=""><div><strong>CRM RENASCER</strong><small>Gestão da igreja</small></div></div>
-      <nav id="module-nav"></nav>
-      <div class="userbox"><strong id="user-name">Administrador</strong><small id="user-email"></small><button id="logout" class="logout">Sair do sistema</button></div>
+      <a href="#dashboard" data-section="dashboard" class="brand">
+        <img id="brand-logo" src="/img/logo.png" alt="Renascer">
+        <div><strong>ADMIN RENASCER</strong><small>Painel da liderança</small></div>
+      </a>
+      <nav id="sidebar-nav"></nav>
+      <div class="userbox">
+        <div class="userrow">
+          <div id="avatar" class="avatar">--</div>
+          <div style="min-width:0; flex:1;">
+            <strong id="user-name">...</strong>
+            <small id="user-role">...</small>
+          </div>
+        </div>
+        <button id="btn-logout" class="logout" type="button">Sair do sistema</button>
+      </div>
     </aside>
+
     <main>
-      <header><div><h1 id="page-title">Visão geral</h1><p id="page-subtitle">Acompanhe os principais indicadores da comunidade.</p></div><button id="refresh" class="btn btn-muted">Atualizar</button></header>
-      <div class="content"><section id="dashboard"></section><section id="module-view" class="hidden"></section></div>
+      <header>
+        <div class="head-left">
+          <p style="font-size:11px; font-weight:700; letter-spacing:.2em; color:var(--green); text-transform:uppercase; margin:0;">Igreja Renascer</p>
+          <h1 id="page-title">Visão geral</h1>
+        </div>
+        <div class="head-right">
+          <button id="refresh" type="button" class="btn btn-muted">Atualizar</button>
+          <button id="theme-toggle" type="button" class="tool-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
+          <a href="/index.html" target="_blank" class="site-link">Ver site</a>
+        </div>
+      </header>
+
+      <div class="content">
+        <section data-view="dashboard">
+          <div class="greet">
+            <p class="today" id="today"></p>
+            <h2>Olá, <span id="welcome-name">liderança</span> 👋</h2>
+            <p>Acompanhe a comunidade e acesse as ferramentas liberadas para você.</p>
+          </div>
+          <div id="stats" class="cards"></div>
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3>Visão geral da comunidade</h3>
+                  <p>Membros acumulados nos últimos meses</p>
+                </div>
+                <span class="badge green"><span class="dot"></span>Tempo real</span>
+              </div>
+              <div class="member-chart">
+                <div id="member-chart-bars" class="member-chart-bars"></div>
+                <div id="member-chart-labels" class="member-chart-labels"></div>
+              </div>
+              <div class="chart-foot">
+                <span>Quantidade de membros cadastrados</span>
+                <strong id="member-chart-total">0 membros</strong>
+              </div>
+              <div id="quick-actions" class="quick-actions"></div>
+            </div>
+            <div class="panel access-panel">
+              <p style="font-size:13px; font-weight:700; margin:0;">Seu acesso</p>
+              <h3 id="access-summary" style="margin:8px 0 0; font-size:30px; font-weight:900; color:var(--green);">...</h3>
+              <p style="margin:8px 0 0; font-size:13px; line-height:1.5; color:var(--muted);">Áreas liberadas para o seu usuário.</p>
+              <div class="mini-bars">
+                <span style="height:64px;"></span>
+                <span style="height:96px;"></span>
+                <span style="height:128px;"></span>
+                <span style="height:80px;"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-view="respostas" class="hidden">
+          <div class="section-head">
+            <h2>Respostas do site</h2>
+            <p>Centralize contatos, batismos, voluntários, grupos e pedidos de oração.</p>
+          </div>
+          <div id="response-tabs" class="tabs"></div>
+          <div class="panel" style="padding:0; overflow:hidden;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--line);">
+              <h3 id="response-title" style="margin:0; font-size:16px; font-weight:800;">Novos contatos</h3>
+              <span id="response-count" class="badge green">0 registros</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead id="response-head"></thead>
+                <tbody id="response-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section data-view="membros" class="hidden">
+          <div class="section-head">
+            <h2>Membresia</h2>
+            <p>Cadastre, consulte e gerencie os membros da comunidade.</p>
+          </div>
+          <iframe src="admin-membros.html?embed=1" title="Módulo completo de membresia" class="embed-frame"></iframe>
+        </section>
+
+        <section data-view="eventos" class="hidden">
+          <div class="section-head">
+            <h2>Eventos</h2>
+            <p>Gerencie a agenda de encontros e celebrações.</p>
+          </div>
+          <iframe src="admin-eventos.html?embed=1" title="Módulo completo de eventos" class="embed-frame"></iframe>
+        </section>
+
+        <section data-view="ministerios" class="hidden crm-module" data-crm-key="ministries"></section>
+        <section data-view="celulas" class="hidden crm-module" data-crm-key="cells"></section>
+        <section data-view="escalas" class="hidden crm-module" data-crm-key="schedules"></section>
+        <section data-view="presenca" class="hidden crm-module" data-crm-key="attendance_sessions"></section>
+        <section data-view="pastoral" class="hidden crm-module" data-crm-key="pastoral_followups"></section>
+        <section data-view="financeiro" class="hidden crm-module" data-crm-key="finance_transactions"></section>
+        <section data-view="patrimonio" class="hidden crm-module" data-crm-key="assets"></section>
+        <section data-view="manutencao" class="hidden crm-module" data-crm-key="maintenance_requests"></section>
+        <section data-view="notificacoes" class="hidden crm-module" data-crm-key="notifications"></section>
+        <section data-view="integracoes" class="hidden crm-module" data-crm-key="integration_connections"></section>
+
+        <section data-view="gestao" class="hidden">
+          <div class="section-head">
+            <h2>Gestão da igreja</h2>
+            <p>Módulos liberados conforme sua função e responsabilidade.</p>
+          </div>
+          <div id="admin-modules" class="modules-grid"></div>
+        </section>
+
+        <section data-view="usuarios" class="hidden">
+          <div class="section-head">
+            <h2>Usuários e permissões</h2>
+            <p>Somente o superadmin pode alterar o acesso de outros usuários.</p>
+          </div>
+          <div id="users-notice" class="banner-warn hidden">Esta área é exclusiva do superadmin.</div>
+          <form id="user-form" class="panel" style="display:grid; gap:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap;">
+              <div>
+                <h3 id="user-form-title" style="margin:0; font-size:16px; font-weight:800;">Cadastrar acesso</h3>
+                <p id="user-form-help" style="margin:4px 0 0; color:var(--muted); font-size:12px;">Informe o e-mail, crie uma senha e escolha as áreas liberadas.</p>
+              </div>
+              <button id="user-form-cancel" type="button" class="hidden" style="background:transparent; border:0; font-weight:700; color:var(--muted);">Limpar edição</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;">
+              <input id="user-email-input" required type="email" placeholder="E-mail do usuário">
+              <input id="user-name-input" required placeholder="Nome de exibição">
+              <select id="user-label-input" class="wide" aria-label="Nomenclatura do usuário">
+                <option value="Administrador">Administrador</option>
+                <option value="Pastor">Pastor</option>
+                <option value="Secretaria">Secretaria</option>
+                <option value="Líder de ministério">Líder de ministério</option>
+                <option value="Líder de célula">Líder de célula</option>
+                <option value="Comunicação">Comunicação</option>
+                <option value="Financeiro">Financeiro</option>
+                <option value="Outro">Outro</option>
+              </select>
+              <input id="user-custom-label-input" type="text" maxlength="40" class="wide hidden" placeholder="Digite a nomenclatura personalizada">
+              <input id="user-password-input" required minlength="6" type="password" autocomplete="new-password" class="wide" placeholder="Senha inicial (mínimo 6 caracteres)">
+              <p id="user-password-help" class="wide" style="margin:0; font-size:11px; color:var(--muted);">A senha será usada apenas para criar o acesso e não será salva no banco.</p>
+              <div class="wide" style="margin-top:6px;">
+                <p style="margin:0 0 10px; font-weight:700;">Permissões de acesso</p>
+                <div id="permission-checks" class="perm-grid"></div>
+              </div>
+              <button type="submit" class="btn btn-primary wide" style="justify-self:start;">Criar usuário e salvar permissões</button>
+            </div>
+          </form>
+          <div id="users-list" class="users-grid"></div>
+        </section>
+
+        <section data-view="perfil" class="hidden">
+          <div class="section-head">
+            <h2>Meu perfil</h2>
+            <p>Atualize seus dados de acesso e identificação.</p>
+          </div>
+          <div class="profile-layout">
+            <div class="profile-side">
+              <div id="profile-avatar" class="big-avatar"><span>--</span></div>
+              <h3 id="profile-name">...</h3>
+              <p class="pemail" id="profile-email">...</p>
+              <label for="profile-photo-input" class="photolbl">Alterar foto</label>
+              <input id="profile-photo-input" type="file" accept="image/png,image/jpeg,image/webp" style="display:none;">
+              <p class="small-hint">JPG, PNG ou WebP até 2 MB</p>
+            </div>
+            <div class="profile-forms">
+              <form id="profile-form" class="panel">
+                <h3 style="margin:0 0 14px; font-size:16px; font-weight:800;">Nome de exibição</h3>
+                <input id="profile-name-input" required style="margin-bottom:14px;">
+                <button type="submit" class="btn btn-primary">Salvar nome</button>
+              </form>
+              <form id="password-form" class="panel">
+                <h3 style="margin:0 0 14px; font-size:16px; font-weight:800;">Alterar senha</h3>
+                <input id="password-input" required minlength="6" type="password" style="margin-bottom:14px;" placeholder="Nova senha (mínimo 6 caracteres)">
+                <button type="submit" class="btn btn-muted" style="background:#0f172a; color:#fff;">Atualizar senha</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
   </div>
+
+  <div id="member-modal" class="modal-backdrop">
+    <form id="member-form" class="modal-box">
+      <div class="modal-head">
+        <h2 id="member-modal-title">Novo membro</h2>
+        <button type="button" data-close-modal="member-modal" class="close-x">×</button>
+      </div>
+      <div class="modal-form">
+        <input id="member-name" required placeholder="Nome completo">
+        <input id="member-email" type="email" placeholder="E-mail">
+        <input id="member-phone" placeholder="Telefone / WhatsApp">
+        <input id="member-birth" type="date">
+        <input id="member-gender" placeholder="Gênero">
+        <select id="member-status">
+          <option>Ativo</option>
+          <option>Inativo</option>
+        </select>
+        <input id="member-photo" type="file" accept="image/*" class="wide">
+        <textarea id="member-address" class="wide" placeholder="Endereço"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button type="button" data-close-modal="member-modal" class="btn btn-muted">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar membro</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="message-modal" class="modal-backdrop">
+    <div class="modal-box wide">
+      <div class="modal-head">
+        <h2>Mensagem para membros</h2>
+        <button type="button" data-close-modal="message-modal" class="close-x">×</button>
+      </div>
+      <select id="message-gender" style="margin-bottom:10px;">
+        <option value="Todos">Todos os gêneros</option>
+        <option value="Masculino">Masculino</option>
+        <option value="Feminino">Feminino</option>
+      </select>
+      <textarea id="message-text" rows="5" placeholder="Olá {nome}! ..."></textarea>
+      <button id="message-start" type="button" class="btn btn-primary" style="width:100%; margin-top:14px;">Gerar lista de envio</button>
+      <div id="message-progress" class="hidden" style="margin-top:16px;">
+        <p id="message-next" style="font-weight:700; margin:0 0 10px;"></p>
+        <button id="message-next-button" type="button" class="btn btn-primary" style="width:100%;"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="detail-modal" class="modal-backdrop">
+    <div class="modal-box wide">
+      <div class="modal-head">
+        <h2 id="detail-title">Detalhes</h2>
+        <button type="button" data-close-modal="detail-modal" class="close-x">×</button>
+      </div>
+      <div id="detail-content" style="display:grid; gap:10px; font-size:13px;"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+        <button id="detail-print" type="button" class="btn btn-primary">Imprimir ficha</button>
+      </div>
+    </div>
+  </div>
+
   <div id="notice" class="notice hidden"></div>
+
+  <script type="module" src="/auth-guard.js"></script>
+  <script type="module">
+    import * as SupabaseCompat from "/supabase-compat.js";
+    const { initializeApp, getAnalytics, getAuth, onAuthStateChanged, updateProfile, updatePassword, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, getStorage, ref: storageRef, uploadBytes, getDownloadURL, getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, orderBy, serverTimestamp, increment } = SupabaseCompat;
+    const app = initializeApp({}), auth = getAuth(app), db = getFirestore(app), storage = getStorage(app), adminCreationApp = initializeApp({}, "admin-user-creation"), adminCreationAuth = getAuth(adminCreationApp);
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+    const SUPERADMIN_EMAIL = "admin@renascer.com";
+    const PERMISSIONS = { dashboard: "Dashboard", respostas: "Respostas do site", membros: "Membresia", eventos: "Eventos", perfil: "Meu perfil", usuarios: "Usuários e permissões", gestao: "Gestão da igreja", ministerios: "Ministérios", celulas: "Células", escalas: "Escalas", presenca: "Presença", pastoral: "Pastoral", financeiro: "Financeiro", patrimonio: "Patrimônio", manutencao: "Manutenção", notificacoes: "Notificações", integracoes: "Integrações" };
+    const RESPONSE_COLLECTIONS = { conexoes_novos_membros: "Novos contatos", inscricoes_batismo: "Batismo", inscricoes_voluntarios: "Voluntários", pedidos_oracao: "Pedidos de oração", interesse_grupos: "Interesse em grupos" };
+    let currentUser, currentProfile, activeResponse = "conexoes_novos_membros", members = [], events = [];
+    const $ = (id) => document.getElementById(id);
+    const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+    const notify = (title, text, icon = "success") => Swal.fire({ title, text, icon, confirmButtonColor: "#16a34a" });
+    const can = (permission) => currentProfile?.role === "superadmin" || currentProfile?.permissions?.[permission] === true || (permission === "gestao" && ["ministerios", "celulas", "escalas", "presenca", "pastoral", "financeiro", "patrimonio", "manutencao", "notificacoes", "integracoes"].some((item) => currentProfile?.permissions?.[item] === true));
+    const savedTheme = localStorage.getItem("renascer-theme");
+    const themeToggle = $("theme-toggle");
+    function applyTheme(theme) {
+      const dark = theme === "dark";
+      document.body.classList.toggle("dark", dark);
+      themeToggle.textContent = dark ? "☀" : "☾";
+      themeToggle.setAttribute("aria-label", dark ? "Ativar modo claro" : "Ativar modo escuro");
+      $("brand-logo").src = dark ? "/img/logo_branca.png" : "/img/logo.png";
+      localStorage.setItem("renascer-theme", theme);
+      document.querySelectorAll("iframe").forEach((frame) => frame.contentWindow?.postMessage({ type: "renascer-theme", theme }, "*"));
+    }
+    applyTheme(savedTheme === "dark" ? "dark" : "light");
+    document.querySelectorAll("iframe").forEach((frame) => frame.addEventListener("load", () => {
+      frame.contentWindow?.postMessage({ type: "renascer-theme", theme: document.body.classList.contains("dark") ? "dark" : "light" }, "*");
+    }));
+    themeToggle.addEventListener("click", () => applyTheme(document.body.classList.contains("dark") ? "light" : "dark"));
+
+    function initials(user) { return (user.displayName || user.email || "A").split(/[\s@]+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase(); }
+    function setAvatar(element, user) {
+      if (user.photoURL) {
+        element.innerHTML = `<img src="${esc(user.photoURL)}" alt="Foto de perfil">`;
+      } else {
+        element.textContent = initials(user);
+      }
+    }
+    function showSection(section) {
+      if (!can(section)) { notify("Acesso não autorizado", "Seu usuário não possui essa permissão.", "warning"); return; }
+      document.querySelectorAll("[data-view]").forEach((view) => view.classList.toggle("hidden", view.dataset.view !== section));
+      document.querySelectorAll("[data-section]").forEach((link) => link.classList.toggle("active", link.dataset.section === section));
+      $("page-title").textContent = PERMISSIONS[section]; history.replaceState(null, "", `#${section}`);
+      if (section === "respostas") loadResponses(activeResponse);
+    }
+    function renderNav() {
+      const icons = { dashboard: "⌂", respostas: "✉", membros: "♙", eventos: "◷", usuarios: "⚙", perfil: "●" };
+      const standardLinks = Object.entries(PERMISSIONS).filter(([key]) => key !== "gestao" && can(key)).map(([key, label]) => `<a href="#${key}" data-section="${key}"><span>${icons[key] || "▸"}</span>${label}</a>`).join("");
+      const modulePermissions = ["ministerios", "celulas", "escalas", "presenca", "pastoral", "financeiro", "patrimonio", "manutencao", "notificacoes", "integracoes"];
+      const managementLink = modulePermissions.some((permission) => can(permission)) ? `<a href="#gestao" data-section="gestao"><span>▣</span>Gestão da igreja</a>` : "";
+      $("sidebar-nav").innerHTML = standardLinks + managementLink;
+      document.querySelectorAll("[data-section]").forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); showSection(link.dataset.section); }));
+      $("access-summary").textContent = `${Object.keys(PERMISSIONS).filter(can).length} áreas liberadas`;
+    }
+    function renderStats(counts) {
+      const items = [
+        ["membros", "Membros ativos", counts.membros, "♙", "green"],
+        ["respostas", "Novos contatos", counts.respostas, "✉", "blue"],
+        ["eventos", "Eventos publicados", counts.eventos, "◷", "amber"],
+        ["pedidos", "Pedidos de oração", counts.pedidos, "♡", "rose"]
+      ].filter(([key]) => can(key === "pedidos" ? "respostas" : key));
+      $("stats").innerHTML = items.map(([, label, count, icon, tone]) => `
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <span class="label">${label}</span>
+              <strong>${count}</strong>
+              <p class="status green">● Atualizado agora</p>
+            </div>
+            <span class="icon-box ${tone}">${icon}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+    function renderMemberChart(memberList) {
+      const now = new Date();
+      const months = Array.from({ length: 12 }, (_, index) => new Date(now.getFullYear(), now.getMonth() - 11 + index, 1));
+      const dates = memberList.map((member) => {
+        const raw = member.criadoEm || member.createdAt || member.data_cadastro || member.dataCadastro;
+        if (!raw) return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (typeof raw.toDate === "function") return raw.toDate();
+        const parsed = new Date(raw);
+        return Number.isNaN(parsed.getTime()) ? new Date(now.getFullYear(), now.getMonth(), now.getDate()) : parsed;
+      });
+      const values = months.map((month) => dates.filter((date) => date <= new Date(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59)).length);
+      const max = Math.max(...values, 1);
+      $("member-chart-bars").innerHTML = values.map((value, index) => {
+        const height = Math.max(value ? (value / max) * 100 : 4, 4);
+        const tone = index === values.length - 1 || value === max ? "background:#16a34a" : index % 3 === 0 ? "background:#14532d" : index % 2 === 0 ? "background:#4ade80" : "background:#86efac";
+        return `<span class="member-chart-bar" style="height:${height}%;${tone};" title="${value} membro${value === 1 ? "" : "s"}"></span>`;
+      }).join("");
+      $("member-chart-labels").innerHTML = months.map((month) => `<span>${month.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}</span>`).join("");
+      $("member-chart-total").textContent = `${memberList.length} membro${memberList.length === 1 ? "" : "s"}`;
+    }
+    function renderQuickActions() {
+      $("quick-actions").innerHTML = Object.entries(PERMISSIONS)
+        .filter(([key]) => key !== "dashboard" && can(key))
+        .map(([key, label]) => `<button type="button" data-action="${key}" class="quick-btn"><strong>${label}</strong><span>Abrir área</span></button>`)
+        .join("");
+      document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => showSection(button.dataset.action)));
+    }
+    function setupResponseTabs() {
+      $("response-tabs").innerHTML = Object.entries(RESPONSE_COLLECTIONS)
+        .map(([key, label]) => `<button type="button" data-response="${key}">${label}</button>`)
+        .join("");
+      document.querySelectorAll("[data-response]").forEach((button) => button.addEventListener("click", () => loadResponses(button.dataset.response)));
+    }
+    function loadResponses(collectionName) {
+      activeResponse = collectionName;
+      document.querySelectorAll("[data-response]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.response === collectionName);
+      });
+      $("response-title").textContent = RESPONSE_COLLECTIONS[collectionName];
+      $("response-body").innerHTML = `<tr><td colspan="4" class="empty">Carregando registros...</td></tr>`;
+      onSnapshot(collection(db, collectionName), (snapshot) => {
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        $("response-count").textContent = `${rows.length} registro${rows.length === 1 ? "" : "s"}`;
+        $("response-head").innerHTML = "<tr><th>Nome</th><th>Contato</th><th>Mensagem</th><th>Ações</th></tr>";
+        $("response-body").innerHTML = rows.length ? rows.map((row) => {
+          const name = row.nome || row.nome_solicitante || row.name || "Anônimo";
+          const contact = row.email || row.telefone || row.whatsapp || "—";
+          const text = row.mensagem || row.motivo || row.descricao || row.interesse || "—";
+          const pending = collectionName === "pedidos_oracao" && row.status !== "realizada";
+          const rowClass = row.status === "realizada" ? 'style="opacity:.6;"' : "";
+          return `<tr ${rowClass}>
+            <td>
+              <span style="font-weight:600;">${esc(name)}</span>
+              ${collectionName === "pedidos_oracao" ? `<span class="tag ${pending ? "amber" : "green"}" style="margin-left:8px;">${pending ? "PENDENTE" : "REALIZADA"}</span>` : ""}
+            </td>
+            <td>${esc(contact)}</td>
+            <td style="max-width:360px; color:var(--muted);">${esc(text)}</td>
+            <td class="actions">
+              <button type="button" data-detail-response="${collectionName}|${row.id}" class="link-btn green">Ver</button>
+              ${collectionName === "conexoes_novos_membros" ? `<button type="button" data-accept-response="${row.id}" class="link-btn blue">Aceitar</button>` : ""}
+              ${pending ? `<button type="button" data-complete-prayer="${row.id}" class="link-btn blue">Concluir</button>` : ""}
+              <button type="button" data-whats-response="${encodeURIComponent(row.telefone || "")}|${encodeURIComponent(name)}" class="link-btn green">WhatsApp</button>
+              <button type="button" data-delete-response="${collectionName}|${row.id}" class="link-btn red">Excluir</button>
+            </td>
+          </tr>`;
+        }).join("") : `<tr><td colspan="4" class="empty">Nenhum registro encontrado.</td></tr>`;
+
+        document.querySelectorAll("[data-delete-response]").forEach((button) => button.addEventListener("click", async () => {
+          const [col, id] = button.dataset.deleteResponse.split("|");
+          if ((await Swal.fire({ title: "Excluir registro?", icon: "warning", showCancelButton: true, confirmButtonColor: "#dc2626", confirmButtonText: "Excluir" })).isConfirmed) {
+            await deleteDoc(doc(db, col, id));
+          }
+        }));
+        document.querySelectorAll("[data-accept-response]").forEach((button) => button.addEventListener("click", async () => {
+          const row = rows.find((item) => item.id === button.dataset.acceptResponse);
+          await addDoc(collection(db, "membros_oficiais"), { nome: row.nome || row.name || "Novo membro", email: row.email || "", telefone: row.telefone || "", status: "Ativo", criadoEm: serverTimestamp() });
+          notify("Membro aceito", "O contato foi adicionado à membresia.");
+        }));
+        document.querySelectorAll("[data-complete-prayer]").forEach((button) => button.addEventListener("click", async () => {
+          await updateDoc(doc(db, "pedidos_oracao", button.dataset.completePrayer), { status: "realizada" });
+          notify("Pedido atualizado", "O pedido foi marcado como realizado.");
+        }));
+        document.querySelectorAll("[data-detail-response]").forEach((button) => button.addEventListener("click", () => {
+          const [, id] = button.dataset.detailResponse.split("|");
+          const row = rows.find((item) => item.id === id);
+          $("detail-title").textContent = row.nome || row.nome_solicitante || "Detalhes do registro";
+          $("detail-content").innerHTML = Object.entries(row).filter(([key]) => key !== "id").map(([key, value]) => `<p><strong>${esc(key)}:</strong> ${esc(value)}</p>`).join("");
+          $("detail-print").onclick = () => window.print();
+          openModal("detail-modal");
+        }));
+        document.querySelectorAll("[data-whats-response]").forEach((button) => button.addEventListener("click", () => {
+          const [phone, name] = button.dataset.whatsResponse.split("|").map(decodeURIComponent);
+          const digits = phone.replace(/\D/g, "");
+          if (digits.length < 8) return notify("Sem telefone", "Este registro não possui um WhatsApp válido.", "info");
+          window.open(`https://api.whatsapp.com/send?phone=${digits.length <= 11 ? "55" + digits : digits}&text=${encodeURIComponent(`Olá ${name}, falo da Igreja Renascer!`)}`, "_blank");
+        }));
+      });
+    }
+    function renderMembers() {
+      if (!$("members-body")) return;
+      const term = ($("member-search").value || "").toLowerCase();
+      const filtered = members.filter((member) => `${member.nome} ${member.email} ${member.telefone}`.toLowerCase().includes(term));
+      $("members-body").innerHTML = filtered.map((member) => `<tr>
+        <td style="font-weight:600;">${esc(member.nome)}</td>
+        <td>${esc(member.email || member.telefone || "—")}</td>
+        <td><button type="button" data-status-member="${member.id}" class="tag green">${esc(member.status || "Ativo")}</button></td>
+        <td class="actions">
+          <button type="button" data-detail-member="${member.id}" class="link-btn green">Ficha</button>
+          <button type="button" data-edit-member="${member.id}" class="link-btn blue">Editar</button>
+          <button type="button" data-delete-member="${member.id}" class="link-btn red">Excluir</button>
+        </td>
+      </tr>`).join("") || `<tr><td colspan="4" class="empty">Nenhum membro encontrado.</td></tr>`;
+      document.querySelectorAll("[data-delete-member]").forEach((button) => button.addEventListener("click", async () => {
+        if ((await Swal.fire({ title: "Excluir membro?", icon: "warning", showCancelButton: true, confirmButtonColor: "#dc2626", confirmButtonText: "Excluir" })).isConfirmed) {
+          await deleteDoc(doc(db, "membros_oficiais", button.dataset.deleteMember));
+        }
+      }));
+      document.querySelectorAll("[data-status-member]").forEach((button) => button.addEventListener("click", async () => {
+        const member = members.find((item) => item.id === button.dataset.statusMember);
+        await updateDoc(doc(db, "membros_oficiais", member.id), { status: member.status === "Ativo" ? "Inativo" : "Ativo" });
+      }));
+      document.querySelectorAll("[data-detail-member]").forEach((button) => button.addEventListener("click", () => {
+        const member = members.find((item) => item.id === button.dataset.detailMember);
+        $("detail-title").textContent = member.nome;
+        $("detail-content").innerHTML = Object.entries(member).filter(([key]) => key !== "id").map(([key, value]) => `<p><strong>${esc(key)}:</strong> ${esc(value)}</p>`).join("");
+        openModal("detail-modal");
+      }));
+      document.querySelectorAll("[data-edit-member]").forEach((button) => button.addEventListener("click", () => editMember(button.dataset.editMember)));
+    }
+    function renderEvents() {
+      if (!$("events-list")) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const limit = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+      const filteredEvents = events.filter((event) => (!event.data_evento || event.data_evento >= today) && ($("event-filter").value !== "week" || !event.data_evento || event.data_evento <= limit));
+      $("events-list").innerHTML = filteredEvents.map((event) => `
+        <article class="panel">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px;">
+            ${event.imagem_url ? `<img src="${esc(event.imagem_url)}" alt="" style="width:112px; height:80px; object-fit:cover; border-radius:10px;">` : ""}
+            <div style="flex:1; min-width:0;">
+              <p style="margin:0; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--green);">${esc(event.data_evento || event.data || "Sem data")}</p>
+              <h3 style="margin:6px 0 0; font-size:18px; font-weight:800;">${esc(event.titulo)}</h3>
+              <p style="margin:8px 0 0; font-size:13px; color:var(--muted);">${esc(event.horario)} · ${esc(event.local)}</p>
+              <p style="margin:10px 0 0; font-size:13px; color:#475569;">${esc(event.descricao)}</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="button" data-edit-event="${event.id}" class="link-btn blue">Editar</button>
+              <button type="button" data-delete-event="${event.id}" class="link-btn red">Excluir</button>
+            </div>
+          </div>
+        </article>
+      `).join("") || `<p style="color:var(--muted);">Nenhum evento publicado.</p>`;
+      document.querySelectorAll("[data-delete-event]").forEach((button) => button.addEventListener("click", async () => {
+        if ((await Swal.fire({ title: "Excluir evento?", icon: "warning", showCancelButton: true, confirmButtonColor: "#dc2626", confirmButtonText: "Excluir" })).isConfirmed) {
+          await deleteDoc(doc(db, "agenda_eventos", button.dataset.deleteEvent));
+        }
+      }));
+      document.querySelectorAll("[data-edit-event]").forEach((button) => button.addEventListener("click", () => editEvent(button.dataset.editEvent)));
+    }
+    function openModal(id) { $(id).classList.add("open"); $(id).classList.remove("hidden"); }
+    function closeModal(id) { $(id).classList.remove("open"); $(id).classList.add("hidden"); }
+    let editingMemberId = null, editingEventId = null, messageQueue = [], memberPhotoBase64 = "";
+    function editMember(id) {
+      const member = members.find((item) => item.id === id);
+      editingMemberId = id;
+      $("member-modal-title").textContent = "Editar membro";
+      $("member-name").value = member.nome || "";
+      $("member-email").value = member.email || "";
+      $("member-phone").value = member.telefone || "";
+      $("member-birth").value = member.nascimento || "";
+      $("member-gender").value = member.genero || "";
+      $("member-status").value = member.status || "Ativo";
+      $("member-address").value = member.endereco || "";
+      openModal("member-modal");
+    }
+    function editEvent(id) {
+      const event = events.find((item) => item.id === id);
+      editingEventId = id;
+      $("event-title").value = event.titulo || "";
+      $("event-date").value = event.data_evento || "";
+      $("event-time").value = event.horario || "";
+      $("event-location").value = event.local || "";
+      $("event-image").value = event.imagem_url || "";
+      $("event-description").value = event.descricao || "";
+      $("event-submit").textContent = "Atualizar evento";
+      $("event-cancel").classList.remove("hidden");
+      showSection("eventos");
+    }
+    let editingAdminId = null;
+    function setUserLabel(value) {
+      const options = [...$("user-label-input").options].map((option) => option.value);
+      const isCustom = value && !options.includes(value);
+      $("user-label-input").value = isCustom ? "Outro" : (value || "Administrador");
+      $("user-custom-label-input").value = isCustom ? value : "";
+      $("user-custom-label-input").classList.toggle("hidden", $("user-label-input").value !== "Outro");
+      $("user-custom-label-input").required = $("user-label-input").value === "Outro";
+    }
+    function getUserLabel() { return $("user-label-input").value === "Outro" ? $("user-custom-label-input").value.trim() : $("user-label-input").value; }
+    function resetUserForm() {
+      editingAdminId = null;
+      $("user-form").reset();
+      setUserLabel("Administrador");
+      $("user-email-input").disabled = false;
+      $("user-password-input").required = true;
+      $("user-password-input").placeholder = "Senha inicial (mínimo 6 caracteres)";
+      $("user-password-help").textContent = "A senha será usada apenas para criar o acesso e não será salva no banco.";
+      $("user-form-title").textContent = "Cadastrar acesso";
+      $("user-form-help").textContent = "Informe o e-mail, crie uma senha e escolha as áreas liberadas.";
+      $("user-form-cancel").classList.add("hidden");
+      document.querySelectorAll("[data-permission]").forEach((input) => { input.checked = false; });
+    }
+    function editUserPermissions(user) {
+      editingAdminId = user.id || null;
+      $("user-email-input").value = user.email || "";
+      $("user-email-input").disabled = true;
+      $("user-name-input").value = user.nome || user.name || "";
+      setUserLabel(user.nomenclatura || "Administrador");
+      $("user-password-input").value = "";
+      $("user-password-input").required = false;
+      $("user-password-input").placeholder = "Deixe em branco para manter a senha atual";
+      $("user-password-help").textContent = "A senha não pode ser lida. Para alterá-la, use a recuperação de senha do Supabase.";
+      document.querySelectorAll("[data-permission]").forEach((input) => { input.checked = user.permissions?.[input.dataset.permission] === true; });
+      $("user-form-title").textContent = "Editar permissões";
+      $("user-form-help").textContent = `Acesso de ${user.email || "usuário"}`;
+      $("user-form-cancel").classList.remove("hidden");
+      $("user-email-input").focus();
+    }
+    function renderUsers(users) {
+      $("users-list").innerHTML = users.map((user) => {
+        const label = user.role === "superadmin" ? "Superadmin" : (user.nomenclatura || "Administrador");
+        return `<article class="user-card">
+          <div class="row1">
+            <div style="min-width:0; flex:1;">
+              <strong>${esc(user.nome || user.email || "Usuário sem nome")}</strong>
+              <p class="email">${esc(user.email || "E-mail não informado")}</p>
+              <p class="idstr">ID: ${esc(user.uid || user.id || "não informado")}</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="tag-pill ${user.role === "superadmin" ? "super" : "role"}">${esc(label)}</span>
+              ${user.role === "superadmin" ? "" : `<button type="button" data-edit-user="${esc(user.id || "")}" class="btn btn-primary" style="padding:6px 12px; font-size:12px;">Editar acesso</button>`}
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            ${Object.entries(user.permissions || {}).filter(([, value]) => value).map(([key]) => `<span class="tag-pill perm">${esc(PERMISSIONS[key] || key)}</span>`).join("") || '<span style="font-size:12px; color:var(--muted);">Sem permissões atribuídas</span>'}
+          </div>
+        </article>`;
+      }).join("") || `<p style="color:var(--muted);">Nenhum usuário cadastrado.</p>`;
+      document.querySelectorAll("[data-edit-user]").forEach((button) => button.addEventListener("click", () => {
+        const user = users.find((item) => (item.id || "") === button.dataset.editUser);
+        if (user) editUserPermissions(user);
+      }));
+    }
+    async function init() {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        currentUser = user;
+        const isSuperadmin = user.email?.trim().toLowerCase() === SUPERADMIN_EMAIL;
+        const superadminPermissions = Object.keys(PERMISSIONS).reduce((all, key) => ({ ...all, [key]: true }), {});
+        let storedProfile = { email: user.email, nome: user.displayName || user.email, nomenclatura: isSuperadmin ? "Superadmin" : "Administrador", permissions: {} };
+        try {
+          let snap = await getDoc(doc(db, "usuarios_admin", user.id));
+          if (!snap.exists() && user.email) {
+            const byEmail = await getDocs(query(collection(db, "usuarios_admin"), where("email", "==", user.email.trim().toLowerCase())));
+            snap = byEmail.docs[0] || snap;
+          }
+          if (snap.exists()) storedProfile = snap.data();
+        } catch (error) {
+          console.error("Não foi possível carregar o perfil administrativo:", error);
+          if (!isSuperadmin) throw error;
+        }
+        currentProfile = { ...storedProfile, role: isSuperadmin ? "superadmin" : (storedProfile.role || "admin"), permissions: isSuperadmin ? superadminPermissions : (storedProfile.permissions || {}) };
+        const profileUser = { ...user, photoURL: user.photoURL || currentProfile.photoURL };
+        $("user-name").textContent = currentProfile.nome || user.email;
+        $("user-role").textContent = currentProfile.role === "superadmin" ? "SUPERADMIN" : (currentProfile.nomenclatura || "ADMINISTRADOR").toUpperCase();
+        setAvatar($("avatar"), profileUser);
+        setAvatar($("profile-avatar"), profileUser);
+        $("profile-name").textContent = currentProfile.nome || user.email;
+        $("profile-email").textContent = user.email;
+        $("profile-name-input").value = currentProfile.nome || user.displayName || "";
+        $("welcome-name").textContent = (currentProfile.nome || user.email).split(" ")[0];
+        $("today").textContent = new Intl.DateTimeFormat("pt-BR", { dateStyle: "full" }).format(new Date());
+        renderNav();
+        renderQuickActions();
+        setupResponseTabs();
+        $("users-notice").classList.toggle("hidden", currentProfile.role !== "superadmin");
+        $("user-form").classList.toggle("hidden", currentProfile.role !== "superadmin");
+        const { initAdminModules } = await import("/login/admin-modulos.js");
+        initAdminModules({ profile: currentProfile, user: currentUser, notify });
+        if (currentProfile.role === "superadmin") {
+          onSnapshot(collection(db, "usuarios_admin"), (snapshot) => renderUsers(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))));
+        }
+        onSnapshot(collection(db, "membros_oficiais"), (snapshot) => {
+          members = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+          renderMembers();
+          renderMemberChart(members);
+          renderStats({ membros: members.filter((item) => item.status !== "Inativo").length, respostas: 0, eventos: events.length, pedidos: 0 });
+        });
+        onSnapshot(collection(db, "agenda_eventos"), (snapshot) => {
+          events = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+          renderEvents();
+        });
+        Object.keys(RESPONSE_COLLECTIONS).forEach((name) => onSnapshot(collection(db, name), (snapshot) => {
+          if (name === "conexoes_novos_membros") renderStats({ membros: members.length, respostas: snapshot.size, eventos: events.length, pedidos: 0 });
+        }));
+        const loadingEl = $("loading");
+        if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+        $("app")?.classList.remove("hidden");
+        showSection(location.hash.slice(1) || "dashboard");
+      });
+    }
+
+    $("member-search")?.addEventListener("input", renderMembers);
+    document.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", () => closeModal(button.dataset.closeModal)));
+    $("btn-new-member")?.addEventListener("click", () => { editingMemberId = null; $("member-form").reset(); $("member-modal-title").textContent = "Novo membro"; openModal("member-modal"); });
+    $("member-photo")?.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) return notify("Foto muito grande", "Escolha uma imagem de até 2 MB.", "warning");
+      const reader = new FileReader();
+      reader.onload = () => { memberPhotoBase64 = reader.result; };
+      reader.readAsDataURL(file);
+    });
+    $("member-form")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const hoje = new Date().toISOString();
+      const data = {
+        nome: $("member-name").value.trim(),
+        email: $("member-email").value.trim(),
+        telefone: $("member-phone").value.trim(),
+        nascimento: $("member-birth").value,
+        genero: $("member-gender").value.trim(),
+        status: $("member-status").value,
+        endereco: $("member-address").value.trim(),
+        foto_base64: (memberPhotoBase64 && memberPhotoBase64.length < 350000) ? memberPhotoBase64 : null,
+        atualizadoEm: hoje,
+      };
+      try {
+        if (editingMemberId) {
+          await updateDoc(doc(db, "membros_oficiais", editingMemberId), data);
+        } else {
+          await addDoc(collection(db, "membros_oficiais"), { ...data, criadoEm: hoje });
+        }
+        memberPhotoBase64 = null;
+        closeModal("member-modal");
+        notify("Membro salvo", "Os dados da membresia foram atualizados.");
+      } catch (err) {
+        console.error("Erro ao salvar membro:", err);
+        notify("Erro ao salvar", err && err.message ? err.message : "Não foi possível salvar no Banco de Dados.", "error");
+      }
+    });
+    $("btn-message-members")?.addEventListener("click", () => { $("message-text").value = ""; $("message-progress").classList.add("hidden"); openModal("message-modal"); });
+    $("message-start")?.addEventListener("click", () => {
+      const message = $("message-text").value.trim();
+      const gender = $("message-gender").value;
+      if (!message) return notify("Mensagem vazia", "Digite uma mensagem antes de continuar.", "warning");
+      messageQueue = members
+        .filter((member) => member.status === "Ativo" && member.telefone && (gender === "Todos" || member.genero === gender))
+        .map((member) => ({ ...member, telefone: member.telefone.replace(/\D/g, "") }))
+        .filter((member) => member.telefone.length >= 8);
+      if (!messageQueue.length) return notify("Nenhum membro encontrado", "Não há membros ativos com telefone para este filtro.", "info");
+      $("message-text").dataset.message = message;
+      $("message-progress").classList.remove("hidden");
+      updateMessageQueue();
+    });
+    function updateMessageQueue() {
+      const button = $("message-next-button");
+      if (!messageQueue.length) {
+        $("message-next").textContent = "Todos os envios foram concluídos.";
+        button.textContent = "Fechar";
+        button.onclick = () => closeModal("message-modal");
+        return;
+      }
+      $("message-next").textContent = `Próximo: ${messageQueue[0].nome} (${messageQueue.length} restantes)`;
+      button.textContent = "Abrir WhatsApp e enviar";
+      button.onclick = () => {
+        const member = messageQueue.shift();
+        const phone = member.telefone.length <= 11 ? `55${member.telefone}` : member.telefone;
+        window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent($("message-text").dataset.message.replace(/{nome}/gi, member.nome || "Irmão(ã)"))}`, "_blank");
+        updateMessageQueue();
+      };
+    }
+    $("event-filter")?.addEventListener("change", renderEvents);
+    $("event-cancel")?.addEventListener("click", () => { editingEventId = null; $("event-form").reset(); $("event-submit").textContent = "Publicar evento"; $("event-cancel").classList.add("hidden"); });
+    $("event-form")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = { titulo: $("event-title").value, data_evento: $("event-date").value, horario: $("event-time").value, local: $("event-location").value, imagem_url: $("event-image").value, descricao: $("event-description").value, atualizadoEm: serverTimestamp() };
+      if (editingEventId) await updateDoc(doc(db, "agenda_eventos", editingEventId), data);
+      else await addDoc(collection(db, "agenda_eventos"), { ...data, criadoEm: serverTimestamp() });
+      event.target.reset();
+      editingEventId = null;
+      $("event-submit").textContent = "Publicar evento";
+      $("event-cancel").classList.add("hidden");
+      notify("Evento salvo", "A agenda foi atualizada.");
+    });
+    $("user-label-input").addEventListener("change", () => {
+      $("user-custom-label-input").classList.toggle("hidden", $("user-label-input").value !== "Outro");
+      $("user-custom-label-input").required = $("user-label-input").value === "Outro";
+      if ($("user-label-input").value !== "Outro") $("user-custom-label-input").value = "";
+    });
+    $("user-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = $("user-email-input").value.trim().toLowerCase();
+      const name = $("user-name-input").value.trim();
+      const nomenclatura = getUserLabel();
+      const password = $("user-password-input").value;
+      const isEditing = Boolean(editingAdminId);
+      const permissions = Object.fromEntries([...document.querySelectorAll("[data-permission]")].map((input) => [input.dataset.permission, input.checked]));
+      try {
+        if (!isEditing) {
+          if (password.length < 6) return notify("Senha inválida", "A senha inicial precisa ter pelo menos 6 caracteres.", "warning");
+          const { data: sessionData, error: sessionError } = await auth.getSession();
+          if (sessionError || !sessionData.session) throw new Error("A sessão do administrador expirou. Entre novamente.");
+          const response = await fetch("/.netlify/functions/create-admin-user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionData.session.access_token}` },
+            body: JSON.stringify({ email, password, name, nomenclatura, permissions })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || "Não foi possível criar o usuário.");
+        } else {
+          await setDoc(doc(db, "usuarios_admin", editingAdminId), { uid: editingAdminId, email, nome: name, nomenclatura, role: "admin", permissions, updatedAt: serverTimestamp() }, { merge: true });
+        }
+        resetUserForm();
+        notify(isEditing ? "Permissões atualizadas" : "Usuário criado", isEditing ? "O acesso foi atualizado com sucesso." : "A conta foi criada e já pode ser usada para entrar.");
+      } catch (error) {
+        console.error("Erro ao salvar usuário administrativo:", error);
+        notify("Operação não concluída", error.message || "Não foi possível criar ou atualizar o usuário.", "error");
+      }
+    });
+    $("user-form-cancel").addEventListener("click", resetUserForm);
+    $("profile-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await updateProfile(currentUser, { displayName: $("profile-name-input").value });
+      await setDoc(doc(db, "usuarios_admin", currentUser.uid), { nome: $("profile-name-input").value, updatedAt: serverTimestamp() }, { merge: true });
+      notify("Perfil atualizado", "Seu nome foi atualizado.");
+    });
+    $("profile-photo-input").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        event.target.value = "";
+        notify("Arquivo muito grande", "Escolha uma imagem de até 2 MB.", "warning");
+        return;
+      }
+      try {
+        const fileRef = storageRef(storage, `usuarios_admin/${currentUser.uid}/perfil-${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file, { contentType: file.type });
+        const photoURL = await getDownloadURL(fileRef);
+        await updateProfile(currentUser, { photoURL });
+        await setDoc(doc(db, "usuarios_admin", currentUser.uid), { photoURL, updatedAt: serverTimestamp() }, { merge: true });
+        setAvatar($("avatar"), currentUser);
+        setAvatar($("profile-avatar"), currentUser);
+        notify("Foto atualizada", "Sua foto de perfil foi salva.");
+      } catch (error) {
+        console.error("Erro ao atualizar foto:", error);
+        notify("Não foi possível salvar", "Verifique as permissões do Supabase Storage e tente novamente.", "error");
+      } finally {
+        event.target.value = "";
+      }
+    });
+    $("password-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await updatePassword(currentUser, $("password-input").value);
+        event.target.reset();
+        notify("Senha atualizada", "Sua senha foi alterada com sucesso.");
+      } catch (error) {
+        notify("Não foi possível atualizar", "Por segurança, faça login novamente antes de alterar a senha.", "error");
+      }
+    });
+    $("btn-logout").addEventListener("click", () => signOut(auth));
+    $("permission-checks").innerHTML = Object.entries(PERMISSIONS)
+      .filter(([key]) => !["usuarios", "gestao", "dashboard", "perfil"].includes(key))
+      .map(([key, label]) => `<label class="perm-item"><input data-permission="${key}" type="checkbox"><span>${label}</span></label>`)
+      .join("");
+
+    // ======= ENGINE DE MÓDULOS NATIVOS DO CRM =======
+    const CRM_MODULES = [
+      { key:"ministries", label:"Ministérios", permission:"ministerios", table:"ministries", fields:[["name","Nome","text",true],["description","Descrição","textarea"],["active","Ativo","checkbox"]], icon:"⚑" },
+      { key:"cells", label:"Células", permission:"celulas", table:"cells", fields:[["name","Nome","text",true],["address","Endereço","text"],["meeting_day","Dia da reunião","text"],["meeting_time","Horário","time"],["active","Ativa","checkbox"]], icon:"◎" },
+      { key:"schedules", label:"Escalas", permission:"escalas", table:"schedules", fields:[["title","Título","text",true],["starts_at","Início","datetime-local",true],["ends_at","Fim","datetime-local"],["location","Local","text"]], icon:"▤" },
+      { key:"attendance_sessions", label:"Presença", permission:"presenca", table:"attendance_sessions", fields:[["title","Encontro","text",true],["starts_at","Data e hora","datetime-local",true],["checkin_code","Código de check-in","text"]], icon:"✓" },
+      { key:"pastoral_followups", label:"Acompanhamento pastoral", permission:"pastoral", table:"pastoral_followups", fields:[["title","Título","text",true],["notes","Anotações","textarea"],["priority","Prioridade","select",true,["low","normal","high","urgent"]],["status","Status","select",true,["open","in_progress","completed","archived"]]], icon:"♥" },
+      { key:"finance_transactions", label:"Financeiro", permission:"financeiro", table:"finance_transactions", fields:[["description","Descrição","text",true],["amount","Valor","number",true],["kind","Tipo","select",true,["income","expense"]],["occurred_on","Data","date",true],["status","Status","select",true,["pending","confirmed","cancelled"]],["notes","Observações","textarea"]], icon:"$" },
+      { key:"assets", label:"Patrimônio", permission:"patrimonio", table:"assets", fields:[["name","Nome","text",true],["category","Categoria","text"],["inventory_code","Código","text"],["location","Local","text"],["condition","Condição","select",true,["new","good","maintenance","retired"]],["value","Valor","number"],["notes","Observações","textarea"]], icon:"▣" },
+      { key:"maintenance_requests", label:"Manutenção", permission:"manutencao", table:"maintenance_requests", fields:[["title","Título","text",true],["description","Descrição","textarea"],["priority","Prioridade","select",true,["low","normal","high","urgent"]],["status","Status","select",true,["open","in_progress","completed","cancelled"]],["due_on","Prazo","date"]], icon:"☒" },
+      { key:"notifications", label:"Notificações", permission:"notificacoes", table:"notifications", fields:[["title","Título","text",true],["body","Mensagem","textarea",true],["type","Tipo","text"]], icon:"♪" },
+      { key:"integration_connections", label:"Integrações", permission:"integracoes", table:"integration_connections", fields:[["provider","Provedor","select",true,["whatsapp","google_calendar","microsoft_calendar","email"]],["label","Nome","text",true],["active","Ativa","checkbox"]], icon:"↔" }
+    ];
+    const CRM_ALIASES = {
+      ministries:["ministerios"], cells:["celulas"], schedules:["escalas"],
+      attendance_sessions:["presenca"], pastoral_followups:["pastoral"],
+      finance_transactions:["financeiro"], assets:["patrimonio"],
+      maintenance_requests:["manutencao","patrimonio"], notifications:["notificacoes"],
+      integration_connections:["integracoes"]
+    };
+    let __sbClient = null;
+    async function sbClient() {
+      if (!window.__sbClientPromise) {
+        window.__sbClientPromise = import("@supabase/supabase-js").then(async ({ createClient }) => {
+          __sbClient = createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
+          return __sbClient;
+        });
+      }
+      return window.__sbClientPromise;
+    }
+    function canCrm(modKey) {
+      const mod = CRM_MODULES.find((m) => m.key === modKey);
+      if (!mod) return false;
+      if (currentProfile?.role === "superadmin") return true;
+      if (can(mod.permission)) return true;
+      return (CRM_ALIASES[modKey] || []).some((p) => currentProfile?.permissions?.[p] === true);
+    }
+    function crmInput(field, value="") {
+      const [name,label,type,required,options] = field;
+      if (type === "textarea") return `<label class="wide">${label}<textarea name="${name}" ${required?"required":""}>${esc(value)}</textarea></label>`;
+      if (type === "select") return `<label>${label}<select name="${name}" ${required?"required":""}><option value="">Selecione...</option>${(options||[]).map((x) => `<option value="${esc(x)}" ${String(value)===x?"selected":""}>${esc(x)}</option>`).join("")}</select></label>`;
+      if (type === "checkbox") return `<label><span>${label}</span><input name="${name}" type="checkbox" ${value?"checked":""}></label>`;
+      return `<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${required?"required":""}></label>`;
+    }
+    function crmDisplay(row) {
+      return String(row.name || row.title || row.description || row.body || row.id);
+    }
+    function crmField(row, name) { return row[name] ?? ""; }
+    function flashNotice(msg, isError=false) {
+      const el = $("notice");
+      if (!el) return;
+      el.textContent = msg;
+      el.className = `notice${isError?" error":""}`;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 3800);
+    }
+    function sectionByCrmKey(key) { return document.querySelector(`section[data-crm-key="${key}"]`); }
+    function renderCrmModuleShell(mod) {
+      const sec = sectionByCrmKey(mod.key);
+      if (!sec) return;
+      sec.innerHTML = `
+        <div class="section-head"><h2>${mod.label}</h2><p>Cadastre, consulte e atualize os registros deste módulo.</p></div>
+        <div class="panel">
+          <div class="panel-head">
+            <div><h3 style="margin:0;font-size:17px;font-weight:800;">${mod.label}</h3><p>Registros sincronizados com o Supabase.</p></div>
+            <button type="button" data-crm-new="${mod.key}" class="btn btn-primary">Novo registro</button>
+          </div>
+          <form data-crm-form="${mod.key}" class="form hidden"></form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Registro</th>${mod.fields.slice(0,3).map(([,l]) => `<th>${l}</th>`).join("")}<th>Ações</th></tr></thead>
+              <tbody data-crm-rows="${mod.key}"><tr><td class="empty" colspan="6">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>`;
+      sec.querySelector(`[data-crm-new="${mod.key}"]`).addEventListener("click", () => openModuleForm(mod));
+    }
+    function renderCrmRows(mod, rows) {
+      const body = document.querySelector(`[data-crm-rows="${mod.key}"]`);
+      if (!body) return;
+      body.innerHTML = rows.length ? rows.map((row) => `<tr>
+        <td><strong>${esc(crmDisplay(row))}</strong></td>
+        ${mod.fields.slice(0,3).map(([n]) => `<td>${esc(crmField(row,n) || "—")}</td>`).join("")}
+        <td class="actions">
+          <button type="button" class="btn btn-muted" data-crm-edit="${mod.key}|${row.id}">Editar</button>
+          <button type="button" class="btn btn-danger" data-crm-delete="${mod.key}|${row.id}">Excluir</button>
+        </td></tr>`).join("") : `<tr><td class="empty" colspan="6">Nenhum registro encontrado.</td></tr>`;
+      body.querySelectorAll("[data-crm-edit]").forEach((btn) => btn.addEventListener("click", async () => {
+        const [mk, id] = btn.dataset.crmEdit.split("|");
+        const m = CRM_MODULES.find((x) => x.key === mk);
+        const sb = await sbClient();
+        const { data, error } = await sb.from(m.table).select("*").eq("id", id).maybeSingle();
+        if (error) return flashNotice(error.message, true);
+        if (data) openModuleForm(m, data);
+      }));
+      body.querySelectorAll("[data-crm-delete]").forEach((btn) => btn.addEventListener("click", () => {
+        const [mk, id] = btn.dataset.crmDelete.split("|");
+        removeCrmRecord(CRM_MODULES.find((x) => x.key === mk), id);
+      }));
+    }
+    function openModuleForm(mod, row=null) {
+      const form = document.querySelector(`[data-crm-form="${mod.key}"]`);
+      if (!form) return;
+      form.classList.remove("hidden");
+      form.innerHTML = mod.fields.map((f) => crmInput(f, crmField(row || {}, f[0]))).join("") + `
+        <div class="wide toolbar">
+          <button type="submit" class="btn btn-primary">${row ? "Salvar alterações" : "Adicionar registro"}</button>
+          <button type="button" data-crm-cancel="${mod.key}" class="btn btn-muted">Cancelar</button>
+        </div>`;
+      form.querySelector(`[data-crm-cancel="${mod.key}"]`).addEventListener("click", () => form.classList.add("hidden"));
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const sb = await sbClient();
+        const values = {};
+        mod.fields.forEach(([name,,type]) => {
+          const c = form.elements[name];
+          const v = type === "checkbox" ? c.checked : (c.value || "").trim();
+          if (v !== "" || type === "checkbox") values[name] = v;
+        });
+        const res = row
+          ? await sb.from(mod.table).update(values).eq("id", row.id)
+          : await sb.from(mod.table).insert(values);
+        if (res.error) return flashNotice(res.error.message, true);
+        flashNotice("Registro salvo com sucesso.");
+        await loadCrmModule(mod);
+      };
+    }
+    async function removeCrmRecord(mod, id) {
+      if (!confirm("Excluir este registro?")) return;
+      const sb = await sbClient();
+      const { error } = await sb.from(mod.table).delete().eq("id", id);
+      if (error) return flashNotice(error.message, true);
+      flashNotice("Registro excluído.");
+      await loadCrmModule(mod);
+    }
+    async function loadCrmModule(mod) {
+      if (!canCrm(mod.key)) { notify("Acesso não autorizado", "Seu usuário não possui essa permissão.", "warning"); return; }
+      renderCrmModuleShell(mod);
+      const sb = await sbClient();
+      const { data, error } = await sb.from(mod.table).select("*").order("created_at", { ascending:false }).limit(200);
+      if (error) { flashNotice(error.message, true); return; }
+      renderCrmRows(mod, data || []);
+    }
+    async function countTable(table) {
+      try {
+        const sb = await sbClient();
+        const { count, error } = await sb.from(table).select("*", {count:"exact", head:true});
+        return error ? 0 : count || 0;
+      } catch { return 0; }
+    }
+    async function loadCrmStats() {
+      const extra = [];
+      if (can("membros")) extra.push(["Membros CRM", await countTable("members"), "♙", "green"]);
+      if (can("eventos")) extra.push(["Eventos CRM", await countTable("events"), "◷", "amber"]);
+      if (can("pastoral")) extra.push(["Acompanhamentos", await countTable("pastoral_followups"), "♥", "rose"]);
+      if (can("financeiro")) extra.push(["Lançamentos", await countTable("finance_transactions"), "$", "blue"]);
+      const validos = extra.filter(([,c]) => c > 0);
+      if (!validos.length) return;
+      const wrap = $("stats");
+      if (!wrap) return;
+      wrap.innerHTML += validos.map(([label,count,icon,tone]) => `
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <span class="label">${label}</span>
+              <strong>${count}</strong>
+              <p class="status ${tone}">● Direto do Supabase</p>
+            </div>
+            <span class="icon-box ${tone}">${icon}</span>
+          </div>
+        </div>`).join("");
+    }
+
+    // ======= Integrar com funções existentes =======
+    const __origShowSection = showSection;
+    showSection = async function(section) {
+      if (!can(section)) { notify("Acesso não autorizado", "Seu usuário não possui essa permissão.", "warning"); return; }
+      const match = document.querySelector(`section[data-view="${section}"][data-crm-key]`);
+      if (match) {
+        const mod = CRM_MODULES.find((m) => m.key === match.dataset.crmKey);
+        if (mod) await loadCrmModule(mod);
+      }
+      __origShowSection(section);
+    };
+    const __origRenderNav = renderNav;
+    renderNav = function() {
+      const icons = { dashboard:"⌂", respostas:"✉", membros:"♙", eventos:"◷", usuarios:"⚙", perfil:"●", ministerios:"⚑", celulas:"◎", escalas:"▤", presenca:"✓", pastoral:"♥", financeiro:"$", patrimonio:"▣", manutencao:"☒", notificacoes:"♪", integracoes:"↔" };
+      const standardLinks = Object.entries(PERMISSIONS)
+        .filter(([key]) => key !== "gestao" && can(key))
+        .map(([key, label]) => `<a href="#${key}" data-section="${key}"><span>${icons[key] || "▸"}</span>${label}</a>`)
+        .join("");
+      const modulePermissions = ["ministerios","celulas","escalas","presenca","pastoral","financeiro","patrimonio","manutencao","notificacoes","integracoes"];
+      const managementLink = modulePermissions.some((p) => can(p)) ? `<a href="#gestao" data-section="gestao"><span>▣</span>Gestão da igreja (agrupado)</a>` : "";
+      $("sidebar-nav").innerHTML = standardLinks + managementLink;
+      document.querySelectorAll("[data-section]").forEach((link) => link.addEventListener("click", (e) => {
+        e.preventDefault();
+        showSection(link.dataset.section);
+      }));
+      $("access-summary").textContent = `${Object.keys(PERMISSIONS).filter(can).length} áreas liberadas`;
+    };
+    let crmStatsLoaded = false;
+    const __origInit = init;
+    init = async function() {
+      await __origInit();
+      if (!crmStatsLoaded) {
+        crmStatsLoaded = true;
+        loadCrmStats().catch(() => {});
+      }
+    };
+
+    // ======= Botão Atualizar do header =======
+    $("refresh").addEventListener("click", async () => {
+      const hash = location.hash.slice(1) || "dashboard";
+      const match = document.querySelector(`section[data-view="${hash}"][data-crm-key]`);
+      if (match) {
+        const mod = CRM_MODULES.find((m) => m.key === match.dataset.crmKey);
+        if (mod) await loadCrmModule(mod);
+      } else if (hash === "dashboard") {
+        await loadCrmStats();
+      }
+      flashNotice("Tela atualizada.");
+    });
+
+    init();
+  </script>
 </body>
 </html>
